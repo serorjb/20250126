@@ -75,11 +75,6 @@ def talib_base_indicators(df: pd.DataFrame, inputs: dict):
                     df[name] = output
 
 
-# import warnings
-# from pandas.errors import SettingWithCopyWarning
-# warnings.simplefilter(action='ignore', category=SettingWithCopyWarning)
-
-
 custom: dict = dict()
 for col in prices.columns:
     temp = prices[[col]].copy(deep=True)
