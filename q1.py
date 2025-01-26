@@ -85,13 +85,17 @@ scope = scope.set_index('DATE')
 print(f'{scope=}')
 
 # II DATA EXPLORATION
-# scope['PXID'].apply(lambda x: len(x)).plot()
-# plt.show()
+scope['PXID'].apply(lambda x: len(x)).plot()
+plt.savefig('plots/scope_initial.png')
+plt.close()
 
 # noticed the scope widens drastically on covid outbreak month March 2020 and then reverts to Feb range in April;
 # not sure if genuine or not, I will take the discretion here to set March scope to be Feb union April;
 # there is limited value in overhauling the portfolio one month and having to revert it the next
 scope.loc['2020-03-31']['PXID'] = list(set(scope.loc['2020-02-28'].values[0] + scope.loc['2020-04-30'].values[0]))
+scope['PXID'].apply(lambda x: len(x)).plot()
+plt.savefig('plots/scope_modified.png')
+plt.close()
 pd.to_pickle(scope, 'hot/scope.pickle')
 
 # returns
@@ -116,7 +120,8 @@ fix_returns(returns)
 temp = prices[:'2011-01-31'].dropna(axis=1, how='all').fillna(method='bfill')
 temp = temp.div(temp.iloc[0])
 temp.plot()
-plt.show()
+plt.savefig('plots/prices.png')
+plt.close()
 
 # let's use self organising maps to take a more structured look
 time_series_data = RobustScaler().fit_transform(temp.T)
@@ -146,8 +151,8 @@ for i, (cluster, members) in enumerate(clusters.items()):
     axes[i].set_yticks([])
     axes[i].text(0.5, -0.3, str(), ha='center', va='center', fontsize=8, transform=axes[i].transAxes)
 plt.tight_layout()
-plt.show()
-
+plt.savefig('plots/clusters.png')
+plt.close()
 
 # let's take a look at the returns distribution in each cluster
 temp_returns = returns[:'2011-01-31'].dropna(axis=1, how='all')
@@ -161,6 +166,7 @@ for i, (cluster, members) in enumerate(clusters.items()):
     axes[i].set_xlabel('Return')
     axes[i].set_ylabel('Frequency')
 plt.tight_layout()
-plt.show()
+plt.savefig('plots/clusters_returns.png')
+plt.close()
 
 # todo if time allows, revisit to do a hmm regime detection and plot returns by regime
