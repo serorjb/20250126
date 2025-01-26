@@ -47,7 +47,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.q1.executor": "Run",
-    "Python.q2.executor": "Debug",
+    "Python.q2.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
@@ -68,7 +68,7 @@
       <recent name="C:\Dev\20250126\data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.q1">
+  <component name="RunManager" selected="Python.q2">
     <configuration name="q1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -116,8 +116,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.q1" />
         <item itemvalue="Python.q2" />
+        <item itemvalue="Python.q1" />
       </list>
     </recent_temporary>
   </component>
@@ -156,7 +156,31 @@
       <option name="project" value="LOCAL" />
       <updated>1737904990180</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737909549724</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1737909549724</updated>
+    </task>
+    <task id="LOCAL-00005" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737909561185</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1737909561185</updated>
+    </task>
+    <task id="LOCAL-00006" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737909573958</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1737909573958</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,8 +201,18 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q2.py</url>
-          <line>108</line>
+          <line>151</line>
           <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q2.py</url>
+          <line>73</line>
+          <option name="timeStamp" value="48" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q2.py</url>
+          <line>61</line>
+          <option name="timeStamp" value="51" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

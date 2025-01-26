@@ -43,6 +43,54 @@ momentum = prices.apply(compute_momentum, axis=0)
 # after excessive movement in either direction, usually a cross downwards from 70+ or upwards from 30-
 
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+future_returns = {period: prices.pct_change(periods=period).shift(-period) for period in (3,6,9,12)}
+
+# Create a DataFrame to store average returns by quartile
+avg_returns = pd.DataFrame()
+
+# Loop through each quartile
+for period in [3, 6, 9, 12]:
+    avg_returns_period = []
+    for col in rsi.columns:
+        # Divide the RSI into quartiles
+        rsi_column = rsi[col]
+        rsi_quartiles = pd.qcut(rsi_column, 4, labels=False, duplicates='drop')
+
+        # Calculate future returns for each quartile group
+        future_returns_col = future_returns[period][col]
+        returns_by_quartile = future_returns_col.groupby(rsi_quartiles).mean()
+
+        if not any(returns_by_quartile.values) == np.nan:
+            avg_returns_period.append(returns_by_quartile)
+
+    avg_returns[period] = pd.concat(avg_returns_period, axis=1).mean(axis=1)
+
+# Plot the results (raw and beta-adjusted)
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# Plot raw returns
+avg_returns.plot(ax=axes[0])
+axes[0].set_title('Average Future Returns (Raw)')
+axes[0].set_xlabel('Quartile')
+axes[0].set_ylabel('Average Return')
+
+# Plot beta-adjusted returns
+# Compute beta-adjusted returns by subtracting index average returns (use mean of all columns)
+index_returns = prices.mean(axis=1).pct_change().shift(-1)
+beta_adjusted_returns = avg_returns.sub(index_returns, axis=0)
+
+beta_adjusted_returns.plot(ax=axes[1])
+axes[1].set_title('Average Future Returns (Beta-Adjusted)')
+axes[1].set_xlabel('Quartile')
+axes[1].set_ylabel('Beta-Adjusted Return')
+
+plt.tight_layout()
+plt.show()
 
 
 # RELATIVE
