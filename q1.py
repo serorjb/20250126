@@ -54,7 +54,9 @@ prices = prices[['PXID', 'CLOSE']]
 prices = prices.pivot(columns='PXID', values='CLOSE')
 # some of these rows are like 99%+ empty, so I will just drop them
 prices.dropna(thresh=int(prices.shape[1] / 100), inplace=True)
-# I could use parquet but it doesn't support int column names
+
+if not os.path.exists('hot'):
+    os.makedirs('hot')
 pd.to_pickle(prices, 'hot/prices.pickle')
 print(f'{prices=}')
 
@@ -154,7 +156,7 @@ axes = axes.flatten()
 for i, (cluster, members) in enumerate(clusters.items()):
     cluster_returns = temp_returns[members]
     for col in cluster_returns.columns:
-        axes[i].hist(cluster_returns[col], bins=20, alpha=0.3, color='gray')
+        axes[i].hist(cluster_returns[col], bins=50, alpha=0.5, color='gray')
     axes[i].set_title(f'Cluster {i + 1} Returns')
     axes[i].set_xlabel('Return')
     axes[i].set_ylabel('Frequency')
