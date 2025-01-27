@@ -207,7 +207,7 @@ scope = pd.read_pickle('hot/scope.pickle')
 
 refresh = True
 weights: dict = dict()
-signal_values = returns.apply(lambda x: compute_rsi(x, period=21))
+signal_values = returns.apply(lambda x: -(compute_rsi(x, period=21)-50)/100)
 # so here we normalise the RSI signal between -1 and 1, and we take the opposite
 # i.e. aim for mean reversion, sell when RSI is high (overbought), and buy when RSI is low (oversold)
 # we will add a long bias given that the returns for the securities given are skewed positively
@@ -237,35 +237,32 @@ if refresh or not os.path.isfile(file):
 else:
     weights['momentum_weights'] = pd.read_pickle(file)
 
-# running_sharpe = portfolio_metrics(backtest['equity'])
-
-
-# backtest = backtest_portfolio(df_returns=df_returns, df_weights=equal_weighted_portfolio)
-
-# backtest_new = backtest_portfolio(df_returns=df_returns, df_weights=df_weights, rebal_cost=0)
-# portfolio_metrics(backtest_new['equity'])
-# portfolio_turnover(df_weights)
-
 equity_curves: dict = dict()
+running_sharpe_ratios: dict = dict()
 for approach_name, weights_frame in weights.items():
     backtest = backtest_portfolio(df_returns=returns, df_weights=weights_frame, rebal_cost=0)
     equity_curves[approach_name] = backtest['equity']
-    running_sharpe_rsi = portfolio_metrics(backtest['equity'])
+    running_sharpe_ratios[approach_name] = portfolio_metrics(backtest['equity'])
     portfolio_turnover(weights_frame)
 
-# plot equity curves next to each other for comparison
-plt.figure(figsize=(12, 6))
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 palette = sns.color_palette('muted', n_colors=len(equity_curves))
-
 for idx, (approach_name, equity_curve) in enumerate(equity_curves.items()):
-    sns.lineplot(data=equity_curve, label=approach_name, color=palette[idx])
+    sns.lineplot(data=equity_curve, label=approach_name, color=palette[idx], ax=ax1)
 
-plt.title('Equity Curves Comparison', fontsize=16)
-plt.xlabel('Time', fontsize=12)
-plt.ylabel('Equity', fontsize=12)
-plt.legend(title='Approach', fontsize=10)
+ax1.set_title('Equity Curves Comparison', fontsize=16)
+ax1.set_xlabel('Time', fontsize=12)
+ax1.set_ylabel('Equity', fontsize=12)
+ax1.legend(title='Approach', fontsize=10)
+
+for idx, (approach_name, sharpe_ratio) in enumerate(running_sharpe_ratios.items()):
+    sns.lineplot(data=sharpe_ratio, label=approach_name, color=palette[idx], ax=ax2)
+
+ax2.set_title('Rolling Sharpe Ratio', fontsize=16)
+ax2.set_xlabel('Time', fontsize=12)
+ax2.set_ylabel('Sharpe Ratio', fontsize=12)
+ax2.legend(title='Approach', fontsize=10)
+
 plt.tight_layout()
-plt.savefig('plots/q3/equity_curves_comparison.png')
+plt.savefig('plots/q3/equity_and_sharpe_comparison.png')
 plt.show()
-
-

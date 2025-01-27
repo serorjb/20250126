@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q3">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q4.py" beforeDir="false" afterPath="$PROJECT_DIR$/q4.py" afterDir="false" />
-    </list>
+    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q4" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -439,7 +435,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737968822484</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="q4">
+      <option name="closed" value="true" />
+      <created>1737970566767</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1737970566767</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -450,7 +454,8 @@
     <MESSAGE value="q2" />
     <MESSAGE value="various bug fixes" />
     <MESSAGE value="q3" />
-    <option name="LAST_COMMIT_MESSAGE" value="q3" />
+    <MESSAGE value="q4" />
+    <option name="LAST_COMMIT_MESSAGE" value="q4" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
