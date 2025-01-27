@@ -54,7 +54,7 @@ def get_signal_avg_returns(
         prices: pd.DataFrame,
         signal_fct: FunctionType,
         horizon_days: int,
-        quantile_bins: int = 4):
+        quantile_bins: int = 5):
     future_returns: pd.DataFrame = prices.pct_change(periods=horizon_days).shift(-horizon_days)
     signal_values: pd.DataFrame = prices.apply(signal_fct, axis=0)
     avg_returns_list: list = list()
@@ -69,7 +69,7 @@ def get_signal_avg_returns(
 
 # varying time horizons
 horizons_results: dict = dict()
-for horizon_days in (range(5, 20, 5)):
+for horizon_days in (5, 10, 15, 21, 63, 92, 252):
     print(horizon_days)
     avg_returns_df = get_signal_avg_returns(prices, compute_rsi, horizon_days=horizon_days)
     horizons_results[horizon_days] = avg_returns_df

@@ -12,6 +12,10 @@ sns.set_theme(style='whitegrid')
 sns.set_palette('deep', desat=.7)
 # !pip install scikit-learn minisom matplotlib numpy pandas os
 
+for directory in ('data', 'hot', 'plots', 'plots/q1', 'plots/q2', 'plots/q3', 'plots/q4'):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
 # Use closing price from price.csv to construct returns for each ID in the asset list. Plot the average daily
 # returns of assets in the asset list and/or any other useful exploratory data analysis. You may assume that
 # the assets does not change between DATEs
@@ -59,8 +63,6 @@ prices = prices.pivot(columns='PXID', values='CLOSE')
 # some of these rows are like 99%+ empty, so I will just drop them
 prices.dropna(thresh=int(prices.shape[1] / 100), inplace=True)
 
-if not os.path.exists('hot'):
-    os.makedirs('hot')
 pd.to_pickle(prices, 'hot/prices.pickle')
 print(f'{prices=}')
 
@@ -90,7 +92,7 @@ print(f'{scope=}')
 
 # II DATA EXPLORATION
 scope['PXID'].apply(lambda x: len(x)).plot(color='black', title='Eligible Scope Count Evolution')
-plt.savefig('plots/scope_initial.png')
+plt.savefig('plots/q1/scope_initial.png')
 plt.close()
 
 # noticed the scope widens drastically on covid outbreak month March 2020 and then reverts to Feb range in April;
@@ -98,7 +100,7 @@ plt.close()
 # there is likely limited value in overhauling the portfolio one month and having to revert it the next
 scope.loc['2020-03-31']['PXID'] = list(set(scope.loc['2020-02-28'].values[0] + scope.loc['2020-04-30'].values[0]))
 scope['PXID'].apply(lambda x: len(x)).plot(color='black', title='Eligible Scope Count Evolution')
-plt.savefig('plots/scope_modified.png')
+plt.savefig('plots/q1/scope_modified.png')
 plt.close()
 pd.to_pickle(scope, 'hot/scope.pickle')
 
@@ -126,7 +128,7 @@ pd.to_pickle(returns, 'hot/returns.pickle')
 temp = prices[:'2011-01-31'].dropna(axis=1, how='all').fillna(method='bfill')
 temp = temp.div(temp.iloc[0])
 temp.plot()
-plt.savefig('plots/prices.png')
+plt.savefig('plots/q1/prices.png')
 plt.close()
 
 # let's use self organising maps to take a more structured look
@@ -157,7 +159,7 @@ for i, (cluster, members) in enumerate(clusters.items()):
     axes[i].set_yticks([])
     axes[i].text(0.5, -0.3, str(), ha='center', va='center', fontsize=8, transform=axes[i].transAxes)
 plt.tight_layout()
-plt.savefig('plots/clusters.png')
+plt.savefig('plots/q1/clusters.png')
 plt.close()
 
 # let's take a look at the returns distribution in each cluster
@@ -172,7 +174,7 @@ for i, (cluster, members) in enumerate(clusters.items()):
     axes[i].set_xlabel('Return')
     axes[i].set_ylabel('Frequency')
 plt.tight_layout()
-plt.savefig('plots/clusters_returns.png')
+plt.savefig('plots/q1/clusters_returns.png')
 plt.close()
 
 
@@ -204,7 +206,7 @@ def plot_regimes(prices, states):
 
     fig.tight_layout()
     # plt.show()
-    plt.savefig('plots/regimes.png')
+    plt.savefig('plots/q1/regimes.png')
 
 
 scope_range = (scope.index.min(), scope.index.max())
