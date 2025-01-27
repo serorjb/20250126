@@ -47,7 +47,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.q1.executor": "Debug",
-    "Python.q2.executor": "Run",
+    "Python.q2.executor": "Debug",
     "Python.scratch_1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -305,7 +305,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737950080333</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737951471051</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1737951471051</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -321,7 +329,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q2.py</url>
-          <line>275</line>
+          <line>228</line>
           <option name="timeStamp" value="45" />
         </line-breakpoint>
       </breakpoints>

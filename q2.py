@@ -133,31 +133,31 @@ regimes_results: dict = dict()
 regimes = pd.read_pickle('hot/regimes.pickle')
 regimes_dict = dict(low_vol=0, high_vol=1)
 
-beta_adjustment = True
-for signal_name, signal_fct in signals.items():
-    future_returns = prices.pct_change(periods=63).shift(-63)
-    beta_adjustment_values = future_returns.mean(axis=1)
-    future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-    signal_values = prices.apply(signal_fct, axis=0)
-
-    for regime_name, regime_value in regimes_dict.items():
-        regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
-
-    # Plotting both series
-    plt.figure(figsize=(10, 6))
-    hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
-    plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
-    plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
-    plt.title('High Volatility vs Low Volatility')
-    plt.xlabel('Quantile')
-    plt.ylabel('Value')
-    plt.legend(loc='best')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
-    plt.show()
+# beta_adjustment = True
+# for signal_name, signal_fct in signals.items():
+#     future_returns = prices.pct_change(periods=63).shift(-63)
+#     beta_adjustment_values = future_returns.mean(axis=1)
+#     future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+#     signal_values = prices.apply(signal_fct, axis=0)
+#
+#     for regime_name, regime_value in regimes_dict.items():
+#         regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
+#         regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
+#         regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
+#
+#     # Plotting both series
+#     plt.figure(figsize=(10, 6))
+#     hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
+#     plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
+#     plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
+#     plt.title('High Volatility vs Low Volatility')
+#     plt.xlabel('Quantile')
+#     plt.ylabel('Value')
+#     plt.legend(loc='best')
+#     plt.grid(True)
+#     plt.tight_layout()
+#     plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
+#     plt.show()
 
     # todo switch plotting code to boilerplate plot_series()
 
@@ -167,22 +167,22 @@ for signal_name, signal_fct in signals.items():
 
 # RELATIVE
 # another interesting development is to use these indicators for relative comparison within clusters
-clusters_results: dict = dict()
-clusters = pd.read_pickle('hot/clusters.pickle')
-clusters = {f'cluster_{x}': value for x, value in enumerate(clusters.values())}
-
-beta_adjustment = True
-for signal_name, signal_fct in signals.items():
-    future_returns = prices.pct_change(periods=63).shift(-63)
-    beta_adjustment_values = future_returns.mean(axis=1)
-    future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-    signal_values = prices.apply(signal_fct, axis=0)
-
-    for cluster_name, cluster in clusters.items():
-        clusters_results[cluster_name] = get_signal_avg_returns(future_returns[cluster], signal_values[cluster])
-
-    plot_series(clusters_results, 'Alpha by SOM Cluster', 'Quantile', 'Value',
-                save_path=f'plots/q2/returns_{signal_name}_clusters_beta_adjusted_True.png')
+# clusters_results: dict = dict()
+# clusters = pd.read_pickle('hot/clusters.pickle')
+# clusters = {f'cluster_{x}': value for x, value in enumerate(clusters.values())}
+#
+# beta_adjustment = True
+# for signal_name, signal_fct in signals.items():
+#     future_returns = prices.pct_change(periods=63).shift(-63)
+#     beta_adjustment_values = future_returns.mean(axis=1)
+#     future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+#     signal_values = prices.apply(signal_fct, axis=0)
+#
+#     for cluster_name, cluster in clusters.items():
+#         clusters_results[cluster_name] = get_signal_avg_returns(future_returns[cluster], signal_values[cluster])
+#
+#     plot_series(clusters_results, 'Alpha by SOM Cluster', 'Quantile', 'Value',
+#                 save_path=f'plots/q2/returns_{signal_name}_clusters_beta_adjusted_True.png')
 
 # worth noting that some clusters react much better than others especially for the RSI signal
 
@@ -220,10 +220,11 @@ for col in prices.columns:
         # features will go into a random forest which will ignore irrelevant inputs
         volume=pd.Series(0, index=temp[col].index),
     ))
+    temp['OBJECTIVE'] = temp.iloc[:, 0].pct_change(periods=63).shift(-63)
+    temp[temp.columns[0]] = str(col)
     custom[col] = temp
 
-# todo to be continued, train the forest once a year with a growing window
-#  revisit once done ith q3/q4
+# todo revisit once done ith q3/q4, gather all securities, train the forest once a year with a growing window
 print(custom)
 
-# todo once done run flake8 & mypy
+# todo run flake8 & mypy
