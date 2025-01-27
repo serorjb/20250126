@@ -114,9 +114,9 @@ def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
 
 
 # using dropna we have a 600+ tickers subset in the universe scope, for this test it should be representative enough
-# subset = prices['2011-01-31':'2020-12-31'].dropna(axis=1, how='any')
-# print(f"{adf_with_drift(subset, regression='ct'):.2f}% of tickers exhibit mean-reverting behavior with drift")
-# print(f"{adf_with_drift(subset):.2f}% of tickers exhibit mean-reverting behavior with linear and quadratic trends")
+subset = prices['2011-01-31':'2020-12-31'].dropna(axis=1, how='any')
+print(f"{adf_with_drift(subset, regression='ct'):.2f}% of tickers exhibit mean-reverting behavior with drift")
+print(f"{adf_with_drift(subset):.2f}% of tickers exhibit mean-reverting behavior with linear and quadratic trends")
 
 # non-negligible proportion of mean-reverting securities, given that the returns distribution is skewed positively,
 # it is not surprising that the lowest quantile (go long oversold stocks) outperforms the rest
