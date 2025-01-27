@@ -73,37 +73,37 @@ signals = dict(mom=compute_momentum, rsi=compute_rsi, )
 beta_adjustments = (True, False)
 
 # running a simulation with various parameters
-for beta_adjustment in beta_adjustments:
-    for signal_name, signal_fct in signals.items():
-        for horizon in horizon_days:
-            print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
-            future_returns = prices.pct_change(periods=horizon).shift(-horizon)
-
-            if beta_adjustment:
-                # results are good, but returns are consistently positive, which is in-line with general stock markets
-                # distribution skew; an interesting approach would be to do some kind of beta-discounting,
-                # let's try using an equal weighted index
-                # note the index composition will naturally vary over time, which is somewhat in line with the reality
-                beta_adjustment_values = future_returns.mean(axis=1)
-                future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-
-            signal_values = prices.apply(signal_fct, axis=0)
-            avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
-            horizons_results[horizon] = avg_returns_df
-
-        aggregated_results = pd.concat(horizons_results, axis=1)
-        aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
-        plt.figure(figsize=(12, 6))
-        for column in aggregated_results.columns:
-            plt.plot(aggregated_results.index, aggregated_results[column], label=column)
-        plt.title("Average Returns Across Horizons")
-        plt.xlabel("Quantile")
-        plt.ylabel("Average Returns")
-        plt.legend(title="Horizons")
-        plt.grid(alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
-        plt.show()
+# for beta_adjustment in beta_adjustments:
+#     for signal_name, signal_fct in signals.items():
+#         for horizon in horizon_days:
+#             print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
+#             future_returns = prices.pct_change(periods=horizon).shift(-horizon)
+#
+#             if beta_adjustment:
+#                 # results are good, but returns are consistently positive, which is in-line with general stock markets
+#                 # distribution skew; an interesting approach would be to do some kind of beta-discounting,
+#                 # let's try using an equal weighted index
+#                 # note the index composition will naturally vary over time, which is somewhat in line with the reality
+#                 beta_adjustment_values = future_returns.mean(axis=1)
+#                 future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+#
+#             signal_values = prices.apply(signal_fct, axis=0)
+#             avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
+#             horizons_results[horizon] = avg_returns_df
+#
+#         aggregated_results = pd.concat(horizons_results, axis=1)
+#         aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
+#         plt.figure(figsize=(12, 6))
+#         for column in aggregated_results.columns:
+#             plt.plot(aggregated_results.index, aggregated_results[column], label=column)
+#         plt.title("Average Returns Across Horizons")
+#         plt.xlabel("Quantile")
+#         plt.ylabel("Average Returns")
+#         plt.legend(title="Horizons")
+#         plt.grid(alpha=0.3)
+#         plt.tight_layout()
+#         plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
+#         plt.show()
 
 
 # so, interestingly both indicators show consistent results, both with and without beta discounting, lower quantiles
@@ -130,9 +130,10 @@ def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
 # it is not surprising that the lowest quantile (go long oversold stocks) outperforms the rest
 
 
-# rsi by regime with horizon 3 months
+# signal by regime with horizon 3 months
 regimes_results: dict = dict()
 regimes = pd.read_pickle('hot/regimes.pickle')
+prices = pd.read_pickle('hot/prices.pickle')
 
 prices_low_vol = prices.loc[regimes.index[regimes['Regime'] == 0]]
 prices_high_vol = prices.loc[regimes.index[regimes['Regime'] == 1]]
@@ -141,13 +142,15 @@ regimes_dict = dict(low_vol=0, high_vol=1)
 beta_adjustment = True
 for signal_name, signal_fct in signals.items():
     future_returns = prices.pct_change(periods=63).shift(-63)
-    beta_adjustment = future_returns.mean(axis=1)
-    future_returns = future_returns.subtract(beta_adjustment, axis=0)
+    beta_adjustment_values = future_returns.mean(axis=1)
+    future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
     signal_values = prices.apply(signal_fct, axis=0)
+
 
     for regime_name, regime_value in regimes_dict.items():
         regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regime_signal_values = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
+        regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
+
         regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
 
     # Plotting both series
