@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q4">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
+    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q3 bug fix">
       <change beforePath="$PROJECT_DIR$/q4.py" beforeDir="false" afterPath="$PROJECT_DIR$/q4.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -455,11 +453,29 @@
       <option name="project" value="LOCAL" />
       <updated>1737970872198</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="q3 bug fix">
+      <option name="closed" value="true" />
+      <created>1737972126766</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1737972126766</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+      </list>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="q1" />
@@ -467,7 +483,8 @@
     <MESSAGE value="various bug fixes" />
     <MESSAGE value="q3" />
     <MESSAGE value="q4" />
-    <option name="LAST_COMMIT_MESSAGE" value="q4" />
+    <MESSAGE value="q3 bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="q3 bug fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -479,13 +496,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q4.py</url>
-          <line>25</line>
+          <line>27</line>
           <option name="timeStamp" value="123" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/q4.py</url>
-          <line>16</line>
-          <option name="timeStamp" value="124" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

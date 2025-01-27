@@ -213,7 +213,7 @@ def _normalize_signal_weights(signal: pd.DataFrame, mask: pd.DataFrame) -> pd.Da
 returns = pd.read_pickle('hot/returns.pickle')
 scope = pd.read_pickle('hot/scope.pickle')
 
-refresh = True  # note this takes like 5 minutes to run ,hence we pickle the results
+refresh = False  # note this takes like 5 minutes to run ,hence we pickle the results
 
 weights: dict = dict()
 signal_values = returns.apply(lambda x: -(compute_rsi(x, period=21)-50)/100)
@@ -249,10 +249,11 @@ else:
 equity_curves: dict = dict()
 running_sharpe_ratios: dict = dict()
 for approach_name, weights_frame in weights.items():
-    backtest = backtest_portfolio(df_returns=returns, df_weights=weights_frame, rebal_cost=0)
+    start = '2011-01-31'
+    backtest = backtest_portfolio(df_returns=returns[start:], df_weights=weights_frame[start:], rebal_cost=0)
     equity_curves[approach_name] = backtest['equity']
     running_sharpe_ratios[approach_name] = portfolio_metrics(backtest['equity'])
-    portfolio_turnover(weights_frame)
+    portfolio_turnover(weights_frame[start:])
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 palette = sns.color_palette('muted', n_colors=len(equity_curves))
