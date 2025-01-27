@@ -226,6 +226,7 @@ for signal_name, signal_fct in signals.items():
 #     temp[temp.columns[0]] = str(col)
 #     custom[col] = temp
 
-# todo revisit once done ith q3/q4, gather all securities, train the forest once a year with a growing window
+# todo don't have time for this one, to be continued ;)
+#  gather all securities, train the forest once a year with a growing window
 
 # todo run flake8 & mypy

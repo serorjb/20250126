@@ -94,7 +94,7 @@
       <recent name="C:\Dev\20250126\data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.q1">
+  <component name="RunManager" selected="Python.q2">
     <configuration name="q1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -208,8 +208,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.q1" />
         <item itemvalue="Python.q2" />
+        <item itemvalue="Python.q1" />
         <item itemvalue="Python.q3" />
         <item itemvalue="Python.q4" />
         <item itemvalue="Python.scratch_1" />
