@@ -60,8 +60,8 @@ def get_signal_avg_returns(
             continue
         quantiles = pd.qcut(signal_values[ticker], quantile_bins, labels=False, duplicates='drop')
         future_returns_col = future_returns[ticker]
-        returns_by_quartile = future_returns_col.groupby(quantiles).mean()
-        avg_returns_list.append(returns_by_quartile)
+        returns_by_quantile = future_returns_col.groupby(quantiles).mean()
+        avg_returns_list.append(returns_by_quantile)
     avg_returns_df = pd.concat(avg_returns_list, axis=1).mean(axis=1)
     return avg_returns_df
 
@@ -81,9 +81,10 @@ for beta_adjustment in beta_adjustments:
 
             if beta_adjustment:
                 # results are good, but returns are consistently positive, which is in-line with general stock markets
-                # distribution skew an interesting approach would be to do some kind of beta-discounting,
+                # distribution skew; an interesting approach would be to do some kind of beta-discounting,
                 # let's try using an equal weighted index
-                beta_adjustment_values = prices.mean(axis=1).pct_change(periods=horizon).shift(-horizon)
+                # note the index composition will naturally vary over time, which is somewhat in line with the reality
+                beta_adjustment_values = future_returns.mean(axis=1)
                 future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
 
             signal_values = prices.apply(signal_fct, axis=0)
@@ -96,7 +97,7 @@ for beta_adjustment in beta_adjustments:
         for column in aggregated_results.columns:
             plt.plot(aggregated_results.index, aggregated_results[column], label=column)
         plt.title("Average Returns Across Horizons")
-        plt.xlabel("Index")
+        plt.xlabel("Quantile")
         plt.ylabel("Average Returns")
         plt.legend(title="Horizons")
         plt.grid(alpha=0.3)
@@ -128,17 +129,16 @@ def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
 # non-negligible proportion of mean-reverting securities, given that the returns distribution is skewed positively,
 # it is not surprising that the lowest quantile (go long oversold stocks) outperforms the rest
 
+
 # rsi by regime with horizon 3 months
 regimes_results: dict = dict()
 regimes = pd.read_pickle('hot/regimes.pickle')
 
 prices_low_vol = prices.loc[regimes.index[regimes['Regime'] == 0]]
 prices_high_vol = prices.loc[regimes.index[regimes['Regime'] == 1]]
-signals = dict(mom=compute_momentum, rsi=compute_rsi, )
 regimes_dict = dict(low_vol=0, high_vol=1)
 
 beta_adjustment = True
-regime_results: dict = dict()
 for signal_name, signal_fct in signals.items():
     future_returns = prices.pct_change(periods=63).shift(-63)
     beta_adjustment = future_returns.mean(axis=1)
@@ -148,24 +148,25 @@ for signal_name, signal_fct in signals.items():
     for regime_name, regime_value in regimes_dict.items():
         regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
         regime_signal_values = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regime_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
+        regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
 
-        aggregated_results = pd.concat(regime_results, axis=1)
-        aggregated_results.columns = [f'Regime {regime}' for regime in regimes_dict.keys()]
-        plt.figure(figsize=(12, 6))
-        for column in aggregated_results.columns:
-            plt.plot(aggregated_results.index, aggregated_results[column], label=column)
-        plt.title("Average Returns Across Regimes")
-        plt.xlabel("Index")
-        plt.ylabel("Average Returns")
-        plt.legend(title="Regimes")
-        plt.grid(alpha=0.3)
-        plt.tight_layout()
-        plt.savefig(f'plots/q2/returns_{signal_name}_regimeS_beta_adjusted.png')
-        plt.show()
+    # Plotting both series
+    plt.figure(figsize=(10, 6))
+    hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
+    plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
+    plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
+    plt.title('High Volatility vs Low Volatility')
+    plt.xlabel('Quantile')
+    plt.ylabel('Value')
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
+    plt.show()
 
 # by cluster with horizon 3 months todo
-clusterss_results: dict = dict()
+# todo tidy up and centralise the boilerplate plotting code
+clusters_results: dict = dict()
 
 # Plot the results (raw and beta-adjusted)
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
@@ -173,7 +174,7 @@ fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 # Plot raw returns
 avg_returns.plot(ax=axes[0])
 axes[0].set_title('Average Future Returns (Raw)')
-axes[0].set_xlabel('Quartile')
+axes[0].set_xlabel('Quantile')
 axes[0].set_ylabel('Average Return')
 
 # Plot beta-adjusted returns
