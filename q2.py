@@ -1,5 +1,3 @@
-from types import FunctionType
-
 import pandas as pd
 import talib
 from statsmodels.tsa.stattools import adfuller
@@ -80,28 +78,28 @@ beta_adjustments = (True, False)
 prices = pd.read_pickle('hot/prices.pickle')
 
 # running a simulation with various parameters
-# for beta_adjustment in beta_adjustments:
-#     for signal_name, signal_fct in signals.items():
-#         for horizon in horizon_days:
-#             print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
-#             future_returns = prices.pct_change(periods=horizon).shift(-horizon)
-#
-#             if beta_adjustment:
-#                 # results are good, but returns are consistently positive, which is in-line with general stock markets
-#                 # distribution skew; an interesting approach would be to do some kind of beta-discounting,
-#                 # let's try using an equal weighted index
-#                 # note the index composition will naturally vary over time, which is somewhat in line with the reality
-#                 beta_adjustment_values = future_returns.mean(axis=1)
-#                 future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-#
-#             signal_values = prices.apply(signal_fct, axis=0)
-#             avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
-#             horizons_results[horizon] = avg_returns_df
-#
-#         aggregated_results = pd.concat(horizons_results, axis=1)
-#         aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
-#         plot_series(horizons_results, 'Average Returns Across Horizons', 'Quantile', 'Average Returns',
-#             save_path=f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
+for beta_adjustment in beta_adjustments:
+    for signal_name, signal_fct in signals.items():
+        for horizon in horizon_days:
+            print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
+            future_returns = prices.pct_change(periods=horizon).shift(-horizon)
+
+            if beta_adjustment:
+                # results are good, but returns are consistently positive, which is in-line with general stock markets
+                # distribution skew; an interesting approach would be to do some kind of beta-discounting,
+                # let's try using an equal weighted index
+                # note the index composition will naturally vary over time, which is somewhat in line with the reality
+                beta_adjustment_values = future_returns.mean(axis=1)
+                future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+
+            signal_values = prices.apply(signal_fct, axis=0)
+            avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
+            horizons_results[horizon] = avg_returns_df
+
+        aggregated_results = pd.concat(horizons_results, axis=1)
+        aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
+        plot_series(horizons_results, 'Average Returns Across Horizons', 'Quantile', 'Average Returns',
+            save_path=f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
 
 # so, interestingly both indicators show consistent results, both with and without beta discounting, lower quantiles
 # outperform higher quantiles, i.e. the securities presented here seem to exhibit a mean reverting behavior
@@ -133,31 +131,31 @@ regimes_results: dict = dict()
 regimes = pd.read_pickle('hot/regimes.pickle')
 regimes_dict = dict(low_vol=0, high_vol=1)
 
-# beta_adjustment = True
-# for signal_name, signal_fct in signals.items():
-#     future_returns = prices.pct_change(periods=63).shift(-63)
-#     beta_adjustment_values = future_returns.mean(axis=1)
-#     future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-#     signal_values = prices.apply(signal_fct, axis=0)
-#
-#     for regime_name, regime_value in regimes_dict.items():
-#         regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
-#         regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
-#         regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
-#
-#     # Plotting both series
-#     plt.figure(figsize=(10, 6))
-#     hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
-#     plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
-#     plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
-#     plt.title('High Volatility vs Low Volatility')
-#     plt.xlabel('Quantile')
-#     plt.ylabel('Value')
-#     plt.legend(loc='best')
-#     plt.grid(True)
-#     plt.tight_layout()
-#     plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
-#     plt.show()
+beta_adjustment = True
+for signal_name, signal_fct in signals.items():
+    future_returns = prices.pct_change(periods=63).shift(-63)
+    beta_adjustment_values = future_returns.mean(axis=1)
+    future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+    signal_values = prices.apply(signal_fct, axis=0)
+
+    for regime_name, regime_value in regimes_dict.items():
+        regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
+        regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
+        regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
+
+    # Plotting both series
+    plt.figure(figsize=(10, 6))
+    hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
+    plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
+    plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
+    plt.title('High Volatility vs Low Volatility')
+    plt.xlabel('Quantile')
+    plt.ylabel('Value')
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
+    plt.show()
 
     # todo switch plotting code to boilerplate plot_series()
 
@@ -167,22 +165,22 @@ regimes_dict = dict(low_vol=0, high_vol=1)
 
 # RELATIVE
 # another interesting development is to use these indicators for relative comparison within clusters
-# clusters_results: dict = dict()
-# clusters = pd.read_pickle('hot/clusters.pickle')
-# clusters = {f'cluster_{x}': value for x, value in enumerate(clusters.values())}
-#
-# beta_adjustment = True
-# for signal_name, signal_fct in signals.items():
-#     future_returns = prices.pct_change(periods=63).shift(-63)
-#     beta_adjustment_values = future_returns.mean(axis=1)
-#     future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
-#     signal_values = prices.apply(signal_fct, axis=0)
-#
-#     for cluster_name, cluster in clusters.items():
-#         clusters_results[cluster_name] = get_signal_avg_returns(future_returns[cluster], signal_values[cluster])
-#
-#     plot_series(clusters_results, 'Alpha by SOM Cluster', 'Quantile', 'Value',
-#                 save_path=f'plots/q2/returns_{signal_name}_clusters_beta_adjusted_True.png')
+clusters_results: dict = dict()
+clusters = pd.read_pickle('hot/clusters.pickle')
+clusters = {f'cluster_{x}': value for x, value in enumerate(clusters.values())}
+
+beta_adjustment = True
+for signal_name, signal_fct in signals.items():
+    future_returns = prices.pct_change(periods=63).shift(-63)
+    beta_adjustment_values = future_returns.mean(axis=1)
+    future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
+    signal_values = prices.apply(signal_fct, axis=0)
+
+    for cluster_name, cluster in clusters.items():
+        clusters_results[cluster_name] = get_signal_avg_returns(future_returns[cluster], signal_values[cluster])
+
+    plot_series(clusters_results, 'Alpha by SOM Cluster', 'Quantile', 'Value',
+                save_path=f'plots/q2/returns_{signal_name}_clusters_beta_adjusted_True.png')
 
 # worth noting that some clusters react much better than others especially for the RSI signal
 

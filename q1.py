@@ -16,10 +16,6 @@ for directory in ('data', 'hot', 'plots', 'plots/q1', 'plots/q2', 'plots/q3', 'p
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-# Use closing price from price.csv to construct returns for each ID in the asset list. Plot the average daily
-# returns of assets in the asset list and/or any other useful exploratory data analysis. You may assume that
-# the assets does not change between DATEs
-
 
 # I DATA CLEANING
 def get_frames(root: str = 'data'):
