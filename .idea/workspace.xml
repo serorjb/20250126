@@ -8,6 +8,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plots/clusters.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/clusters.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plots/clusters_returns.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/clusters_returns.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/prices.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/prices.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/scope_initial.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/scope_initial.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots/scope_modified.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/scope_modified.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/q1.py" beforeDir="false" afterPath="$PROJECT_DIR$/q1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/q2.py" beforeDir="false" afterPath="$PROJECT_DIR$/q2.py" afterDir="false" />
     </list>
@@ -50,7 +53,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.q1.executor": "Run",
-    "Python.q2.executor": "Debug",
+    "Python.q2.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
@@ -199,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737936163300</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737940676115</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1737940676115</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -220,28 +231,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q2.py</url>
-          <line>153</line>
+          <line>175</line>
           <option name="timeStamp" value="45" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/q2.py</url>
-          <line>73</line>
-          <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q2.py</url>
           <line>34</line>
           <option name="timeStamp" value="56" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/q1.py</url>
-          <line>185</line>
-          <option name="timeStamp" value="60" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/q1.py</url>
-          <line>220</line>
-          <option name="timeStamp" value="61" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

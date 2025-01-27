@@ -7,7 +7,9 @@ from hmmlearn.hmm import GaussianHMM
 from minisom import MiniSom
 from sklearn.preprocessing import RobustScaler
 
-
+import seaborn as sns
+sns.set_theme(style='whitegrid')
+sns.set_palette('deep', desat=.7)
 # !pip install scikit-learn minisom matplotlib numpy pandas os
 
 # Use closing price from price.csv to construct returns for each ID in the asset list. Plot the average daily
@@ -87,15 +89,15 @@ scope = scope.set_index('DATE')
 print(f'{scope=}')
 
 # II DATA EXPLORATION
-scope['PXID'].apply(lambda x: len(x)).plot()
+scope['PXID'].apply(lambda x: len(x)).plot(color='black', title='Eligible Scope Count Evolution')
 plt.savefig('plots/scope_initial.png')
 plt.close()
 
 # noticed the scope widens drastically on covid outbreak month March 2020 and then reverts to Feb range in April;
 # not sure if genuine or not, I will take the discretion here to set March scope to be Feb union April;
-# there is limited value in overhauling the portfolio one month and having to revert it the next
+# there is likely limited value in overhauling the portfolio one month and having to revert it the next
 scope.loc['2020-03-31']['PXID'] = list(set(scope.loc['2020-02-28'].values[0] + scope.loc['2020-04-30'].values[0]))
-scope['PXID'].apply(lambda x: len(x)).plot()
+scope['PXID'].apply(lambda x: len(x)).plot(color='black', title='Eligible Scope Count Evolution')
 plt.savefig('plots/scope_modified.png')
 plt.close()
 pd.to_pickle(scope, 'hot/scope.pickle')
@@ -191,12 +193,12 @@ def plot_regimes(prices, states):
     aligned_index = prices.index[-len(states):]  # Align index with states
     fig, ax1 = plt.subplots(figsize=(12, 6))
 
-    ax1.plot(aligned_index, avg_prices[-len(states):], label='Equal-Weighted Index', color='blue')
-    ax1.set_ylabel('Index Value', color='blue')
-    ax1.tick_params(axis='y', labelcolor='blue')
+    ax1.plot(aligned_index, avg_prices[-len(states):], label='Equal-Weighted Index', color='black')
+    ax1.set_ylabel('Index Value')
+    ax1.tick_params(axis='y')
 
     ax2 = ax1.twinx()
-    ax2.plot(aligned_index, states, label='Regimes (0=Low Vol, 1=High Vol)', color='red', alpha=0.6)
+    ax2.plot(aligned_index, states, label='Regimes (0=Low Vol, 1=High Vol)', color='red', alpha=0.7)
     ax2.set_ylabel('Regime', color='red')
     ax2.tick_params(axis='y', labelcolor='red')
 

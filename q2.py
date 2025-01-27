@@ -66,12 +66,34 @@ def get_signal_avg_returns(
     avg_returns_df = pd.concat(avg_returns_list, axis=1).mean(axis=1)
     return avg_returns_df
 
-signal_performance_analysis:dict = dict()
 
+# varying time horizons
+horizons_results: dict = dict()
 for horizon_days in (range(5, 20, 5)):
     print(horizon_days)
     avg_returns_df = get_signal_avg_returns(prices, compute_rsi, horizon_days=horizon_days)
-    print(avg_returns_df)
+    horizons_results[horizon_days] = avg_returns_df
+
+aggregated_results = pd.concat(horizons_results, axis=1)
+aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
+plt.figure(figsize=(12, 6))
+for column in aggregated_results.columns:
+    plt.plot(aggregated_results.index, aggregated_results[column], label=column)
+plt.title("Average Returns Across Horizons")
+plt.xlabel("Index")
+plt.ylabel("Average Returns")
+plt.legend(title="Horizons")
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# by regime with horizon 3 months todo
+regimes_results: dict = dict()
+
+
+# by cluster with horizon 3 months todo
+clusterss_results: dict = dict()
+
 
 # Plot the results (raw and beta-adjusted)
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
