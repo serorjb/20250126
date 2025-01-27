@@ -36,9 +36,6 @@ def compute_momentum(series: pd.Series, period: int = 21):
     return (series / series.shift(period) - 1).bfill()
 
 
-# rsi = prices.apply(compute_rsi, axis=0)
-# momentum = prices.apply(compute_momentum, axis=0)
-
 # the RSI and Momentum are classic momentum-type indicators;
 # RSI is traditionally used with a 14 period and Momentum 10.
 # for our study here, it is sensible to use 21 business days (i.e. a month) at a minimum
