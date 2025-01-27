@@ -7,6 +7,8 @@
     <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q3 bug fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q4.py" beforeDir="false" afterPath="$PROJECT_DIR$/q4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +53,7 @@
     "Python.q1.executor": "Run",
     "Python.q2.executor": "Run",
     "Python.q3.executor": "Run",
-    "Python.q4.executor": "Debug",
+    "Python.q4.executor": "Run",
     "Python.scratch_1.executor": "Run",
     "Python.scratch_2.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -82,7 +84,7 @@
       <recent name="C:\Dev\20250126" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.q3">
+  <component name="RunManager" selected="Python.q4">
     <configuration name="draft" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -195,8 +197,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.q3" />
         <item itemvalue="Python.q4" />
+        <item itemvalue="Python.q3" />
         <item itemvalue="Python.draft" />
         <item itemvalue="Python.draft_2" />
         <item itemvalue="Python.scratch_2" />
@@ -470,7 +472,23 @@
       <option name="project" value="LOCAL" />
       <updated>1737972574447</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="q3 bug fix">
+      <option name="closed" value="true" />
+      <created>1737974239046</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1737974239046</updated>
+    </task>
+    <task id="LOCAL-00034" summary="q3 bug fix">
+      <option name="closed" value="true" />
+      <created>1737974348867</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1737974348867</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -505,13 +523,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/q4.py</url>
-          <line>27</line>
+          <line>30</line>
           <option name="timeStamp" value="123" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/q3.py</url>
-          <line>205</line>
-          <option name="timeStamp" value="127" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
