@@ -1,3 +1,5 @@
+from types import FunctionType
+
 import pandas as pd
 import talib
 from talib import abstract
@@ -29,8 +31,8 @@ def compute_momentum(series: pd.Series, period: int = 21):
     return (series / series.shift(period) - 1).bfill()
 
 
-rsi = prices.apply(compute_rsi, axis=0)
-momentum = prices.apply(compute_momentum, axis=0)
+# rsi = prices.apply(compute_rsi, axis=0)
+# momentum = prices.apply(compute_momentum, axis=0)
 
 # the RSI and Momentum are classic momentum-type indicators;
 # RSI is traditionally used with a 14 period and Momentum 10.
@@ -48,27 +50,28 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-future_returns = {period: prices.pct_change(periods=period).shift(-period) for period in (3,6,9,12)}
-
-# Create a DataFrame to store average returns by quartile
-avg_returns = pd.DataFrame()
-
-# Loop through each quartile
-for period in [3, 6, 9, 12]:
-    avg_returns_period = []
-    for col in rsi.columns:
-        # Divide the RSI into quartiles
-        rsi_column = rsi[col]
-        rsi_quartiles = pd.qcut(rsi_column, 4, labels=False, duplicates='drop')
-
-        # Calculate future returns for each quartile group
-        future_returns_col = future_returns[period][col]
+def get_signal_avg_returns(
+        prices: pd.DataFrame,
+        signal_fct: FunctionType,
+        horizon_days: int,
+        quantile_bins: int = 4):
+    future_returns: pd.DataFrame = prices.pct_change(periods=horizon_days).shift(-horizon_days)
+    signal_values: pd.DataFrame = prices.apply(signal_fct, axis=0)
+    avg_returns_list: list = list()
+    for ticker in prices.columns:
+        rsi_quartiles = pd.qcut(signal_values[ticker], quantile_bins, labels=False, duplicates='drop')
+        future_returns_col = future_returns[ticker]
         returns_by_quartile = future_returns_col.groupby(rsi_quartiles).mean()
+        avg_returns_list.append(returns_by_quartile)
+    avg_returns_df = pd.concat(avg_returns_list, axis=1).mean(axis=1)
+    return avg_returns_df
 
-        if not any(returns_by_quartile.values) == np.nan:
-            avg_returns_period.append(returns_by_quartile)
+signal_performance_analysis:dict = dict()
 
-    avg_returns[period] = pd.concat(avg_returns_period, axis=1).mean(axis=1)
+for horizon_days in (range(5, 20, 5)):
+    print(horizon_days)
+    avg_returns_df = get_signal_avg_returns(prices, compute_rsi, horizon_days=horizon_days)
+    print(avg_returns_df)
 
 # Plot the results (raw and beta-adjusted)
 fig, axes = plt.subplots(1, 2, figsize=(14, 6))
@@ -95,7 +98,6 @@ plt.show()
 
 # RELATIVE
 # another interesting development is to use these indicators for relative comparison within clusters
-
 
 
 # REGIME todo
@@ -150,3 +152,5 @@ for col in prices.columns:
 # ))
 
 print(custom)
+
+# todo once done run flake8 & mypy

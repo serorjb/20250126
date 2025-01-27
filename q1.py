@@ -1,8 +1,9 @@
-import pandas as pd
-import numpy as np
 import os
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from hmmlearn.hmm import GaussianHMM
 from minisom import MiniSom
 from sklearn.preprocessing import RobustScaler
 
@@ -107,11 +108,13 @@ def fix_returns(df: pd.DataFrame, quantile=0.001):
     for col in df.columns:
         upper = df[col].quantile(1 - quantile)
         lower = df[col].quantile(quantile)
+        # discretionary choice to use mean instead of winsorize here
         # df[col].clip(upper=upper, lower=lower, inplace=True)
         df[col] = df[col].mask((df[col] > upper) | (df[col] < lower), df[col].mean())
 
 
 fix_returns(returns)
+pd.to_pickle(returns, 'hot/returns.pickle')
 
 
 # plotting
@@ -170,4 +173,53 @@ plt.tight_layout()
 plt.savefig('plots/clusters_returns.png')
 plt.close()
 
-# todo if time allows, revisit to do a hmm regime detection and plot returns by regime
+
+def compute_volatility(returns: pd.DataFrame):
+    # simple std dev, in a real setup one could leverage ohlc data to use garman-klass vol
+    return returns.rolling(window=21).std()
+
+
+def fit_hmm(volatility_data, n_states=2):
+    model = GaussianHMM(n_components=n_states, covariance_type='diag', n_iter=200, random_state=int())
+    model.fit(volatility_data)
+    regimes = model.predict(volatility_data)
+    return regimes
+
+
+def plot_regimes(prices, states):
+    avg_prices = prices.mean(axis=1)
+    aligned_index = prices.index[-len(states):]  # Align index with states
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+
+    ax1.plot(aligned_index, avg_prices[-len(states):], label='Equal-Weighted Index', color='blue')
+    ax1.set_ylabel('Index Value', color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+
+    ax2 = ax1.twinx()
+    ax2.plot(aligned_index, states, label='Regimes (0=Low Vol, 1=High Vol)', color='red', alpha=0.6)
+    ax2.set_ylabel('Regime', color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    fig.tight_layout()
+    # plt.show()
+    plt.savefig('plots/regimes.png')
+
+
+scope_range = (scope.index.min(), scope.index.max())
+volatility = compute_volatility(returns)
+
+# hmm_fit requires non-nan volatility data, for our 2011-2020 scope we are mostly good
+# so, I will take the simplistic approach below, we get to keep 800 / 964 series,
+# it should be sufficiently representative of the index for the purpose of regime detection
+
+volatility_subset = volatility['2011-01-31':'2020-12-31'].dropna(axis=1, how='any')
+price_subset = prices['2011-01-31':'2020-12-31'][volatility_subset.columns]
+volatility_data = volatility_subset.values
+regimes = fit_hmm(volatility_data)
+
+pd.to_pickle(regimes, 'hot/regimes.pickle')
+plot_regimes(price_subset, regimes)
+
+# note, regimes are detected relatively well by the HMM, however we are taking a holistic look at the entire history
+# this is useful to plot signal performance by regime, however we wouldn't be able to use hmm regimes itself as a signal
+# because of the look-ahead bias inherent to this approach
