@@ -94,7 +94,7 @@ plt.savefig('plots/q4/equal-weights_vs_optimized_comparison.png')
 plt.show()
 
 
-# conclusion equal weights has a less returns but a higher Sharpe ratio than the naive portfolio,
+# conclusion opt weights has a less returns but a higher Sharpe ratio than the naive portfolio,
 # which is somewhat expected ;)
 
 # thank you for reading me and thank you for proposing this exercise, I found it interesting
