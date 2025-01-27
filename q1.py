@@ -128,50 +128,50 @@ plt.savefig('plots/q1/prices.png')
 plt.close()
 
 # let's use self organising maps to take a more structured look
-# time_series_data = RobustScaler().fit_transform(temp.T)
-# som = MiniSom(x=3, y=3, input_len=time_series_data.shape[1])
-# som.pca_weights_init(time_series_data)
-# som.train_random(time_series_data, 1000)
-#
-# clusters = {}
-# for i, stock_data in enumerate(time_series_data):
-#     cluster = som.winner(stock_data)
-#     if cluster not in clusters:
-#         clusters[cluster] = []
-#     clusters[cluster].append(temp.columns[i])
-#
-# pd.to_pickle(clusters, 'hot/clusters.pickle')
-#
-# fig, axes = plt.subplots(3, 3, figsize=(12, 12))
-# axes = axes.flatten()
-# for i, (cluster, members) in enumerate(clusters.items()):
-#     cluster_data = temp[members]
-#     cluster_mean = cluster_data.mean(axis=1)
-#     for col in cluster_data.columns:
-#         axes[i].plot(cluster_data.index, cluster_data[col], color='gray', alpha=0.3)
-#     axes[i].plot(cluster_data.index, cluster_mean, color='red', linewidth=2)  # mean by cluster
-#     axes[i].set_title(f'cluster {i + 1}')
-#     axes[i].set_xticks([])
-#     axes[i].set_yticks([])
-#     axes[i].text(0.5, -0.3, str(), ha='center', va='center', fontsize=8, transform=axes[i].transAxes)
-# plt.tight_layout()
-# plt.savefig('plots/q1/clusters.png')
-# plt.close()
+time_series_data = RobustScaler().fit_transform(temp.T)
+som = MiniSom(x=3, y=3, input_len=time_series_data.shape[1])
+som.pca_weights_init(time_series_data)
+som.train_random(time_series_data, 1000)
+
+clusters = {}
+for i, stock_data in enumerate(time_series_data):
+    cluster = som.winner(stock_data)
+    if cluster not in clusters:
+        clusters[cluster] = []
+    clusters[cluster].append(temp.columns[i])
+
+pd.to_pickle(clusters, 'hot/clusters.pickle')
+
+fig, axes = plt.subplots(3, 3, figsize=(12, 12))
+axes = axes.flatten()
+for i, (cluster, members) in enumerate(clusters.items()):
+    cluster_data = temp[members]
+    cluster_mean = cluster_data.mean(axis=1)
+    for col in cluster_data.columns:
+        axes[i].plot(cluster_data.index, cluster_data[col], color='gray', alpha=0.3)
+    axes[i].plot(cluster_data.index, cluster_mean, color='red', linewidth=2)  # mean by cluster
+    axes[i].set_title(f'cluster {i + 1}')
+    axes[i].set_xticks([])
+    axes[i].set_yticks([])
+    axes[i].text(0.5, -0.3, str(), ha='center', va='center', fontsize=8, transform=axes[i].transAxes)
+plt.tight_layout()
+plt.savefig('plots/q1/clusters.png')
+plt.close()
 
 # let's take a look at the returns distribution in each cluster
-# temp_returns = returns[:'2011-01-31'].dropna(axis=1, how='all')
-# fig, axes = plt.subplots(3, 3, figsize=(12, 12))
-# axes = axes.flatten()
-# for i, (cluster, members) in enumerate(clusters.items()):
-#     cluster_returns = temp_returns[members]
-#     for col in cluster_returns.columns:
-#         axes[i].hist(cluster_returns[col], bins=50, alpha=0.5, color='gray')
-#     axes[i].set_title(f'Cluster {i + 1} Returns')
-#     axes[i].set_xlabel('Return')
-#     axes[i].set_ylabel('Frequency')
-# plt.tight_layout()
-# plt.savefig('plots/q1/clusters_returns.png')
-# plt.close()
+temp_returns = returns[:'2011-01-31'].dropna(axis=1, how='all')
+fig, axes = plt.subplots(3, 3, figsize=(12, 12))
+axes = axes.flatten()
+for i, (cluster, members) in enumerate(clusters.items()):
+    cluster_returns = temp_returns[members]
+    for col in cluster_returns.columns:
+        axes[i].hist(cluster_returns[col], bins=50, alpha=0.5, color='gray')
+    axes[i].set_title(f'Cluster {i + 1} Returns')
+    axes[i].set_xlabel('Return')
+    axes[i].set_ylabel('Frequency')
+plt.tight_layout()
+plt.savefig('plots/q1/clusters_returns.png')
+plt.close()
 
 
 def compute_volatility(returns: pd.DataFrame):
