@@ -51,26 +51,11 @@ import matplotlib.pyplot as plt
 
 
 def get_signal_avg_returns(
-        signal_fct: FunctionType,
-        horizon_days: int,
-        prices: pd.DataFrame = None,
-        returns: pd.DataFrame = None,
-        quantile_bins: int = 5,
-        beta_adjust: bool = False):
-    if returns is None:
-        if prices is None:
-            raise
-        future_returns: pd.DataFrame = prices.pct_change(periods=horizon_days).shift(-horizon_days)
-    else:
-        future_returns: pd.DataFrame = returns
-    if beta_adjust:
-        # good, but returns are consistently positive, which is in-line with general stock markets distribution skew
-        # an interesting approach would be to do some kind of beta-discounting, let's try using an equal weighted index
-        beta_adjustment = prices.mean(axis=1).pct_change(periods=horizon).shift(-horizon)
-        future_returns = future_returns.subtract(beta_adjustment, axis=0)
-    signal_values: pd.DataFrame = prices.apply(signal_fct, axis=0)
+        future_returns: pd.DataFrame,
+        signal_values: pd.DataFrame,
+        quantile_bins: int = 5):
     avg_returns_list: list = list()
-    for ticker in prices.columns:
+    for ticker in future_returns.columns:
         if signal_values[ticker].isnull().all():
             continue
         quantiles = pd.qcut(signal_values[ticker], quantile_bins, labels=False, duplicates='drop')
@@ -87,28 +72,37 @@ horizon_days = (5, 10, 15, 21, 63, 92, 252)
 signals = dict(mom=compute_momentum, rsi=compute_rsi, )
 beta_adjust = (True, False)
 
-
 # running a simulation with various parameters
-# for beta_adjustment in beta_adjust:
-#     for signal_name, signal_fct in signals.items():
-#         for horizon in horizon_days:
-#             print(f'', horizon)
-#             avg_returns_df = get_signal_avg_returns(prices, signal_fct, horizon_days=horizon, beta_adjust=beta_adjustment)
-#             horizons_results[horizon] = avg_returns_df
-#
-#         aggregated_results = pd.concat(horizons_results, axis=1)
-#         aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
-#         plt.figure(figsize=(12, 6))
-#         for column in aggregated_results.columns:
-#             plt.plot(aggregated_results.index, aggregated_results[column], label=column)
-#         plt.title("Average Returns Across Horizons")
-#         plt.xlabel("Index")
-#         plt.ylabel("Average Returns")
-#         plt.legend(title="Horizons")
-#         plt.grid(alpha=0.3)
-#         plt.tight_layout()
-#         plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
-#         plt.show()
+for beta_adjustment in beta_adjust:
+    for signal_name, signal_fct in signals.items():
+        for horizon in horizon_days:
+            print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
+            future_returns = prices.pct_change(periods=horizon).shift(-horizon)
+
+            if beta_adjustment:
+                # results are good, but returns are consistently positive, which is in-line with general stock markets
+                # distribution skew an interesting approach would be to do some kind of beta-discounting,
+                # let's try using an equal weighted index
+                beta_adjustment = prices.mean(axis=1).pct_change(periods=horizon).shift(-horizon)
+                future_returns = future_returns.subtract(beta_adjustment, axis=0)
+
+            signal_values = prices.apply(signal_fct, axis=0)
+            avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
+            horizons_results[horizon] = avg_returns_df
+
+        aggregated_results = pd.concat(horizons_results, axis=1)
+        aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
+        plt.figure(figsize=(12, 6))
+        for column in aggregated_results.columns:
+            plt.plot(aggregated_results.index, aggregated_results[column], label=column)
+        plt.title("Average Returns Across Horizons")
+        plt.xlabel("Index")
+        plt.ylabel("Average Returns")
+        plt.legend(title="Horizons")
+        plt.grid(alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
+        plt.show()
 
 
 # so, interestingly both indicators show consistent results, both with and without beta discounting, lower quantiles
@@ -118,8 +112,7 @@ beta_adjust = (True, False)
 
 def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
     def mean_reversion_test(series):
-        result = adfuller(series, regression=regression, maxlag=maxlag)
-        p_value = result[1]
+        p_value = adfuller(series, regression=regression, maxlag=maxlag)[1]
         return p_value < confidence
 
     results = prices.apply(mean_reversion_test, axis=0)
@@ -127,8 +120,8 @@ def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
     return mean_reverting_ratio
 
 
-# let's use a 200 tickers subset in the universe scope for this test which should be representative enough
-# subset = prices['2011-01-31':'2020-12-31'].dropna(axis=1, how='any').sample(n=200, axis=1, random_state=int())
+# using dropna we have a 600+ tickers subset in the universe scope, for this test it should be representative enough
+# subset = prices['2011-01-31':'2020-12-31'].dropna(axis=1, how='any')
 # print(f"{adf_with_drift(subset, regression='ct'):.2f}% of tickers exhibit mean-reverting behavior with drift")
 # print(f"{adf_with_drift(subset):.2f}% of tickers exhibit mean-reverting behavior with linear and quadratic trends")
 
@@ -142,27 +135,34 @@ regimes = pd.read_pickle('hot/regimes.pickle')
 prices_low_vol = prices.loc[regimes.index[regimes['Regime'] == 0]]
 prices_high_vol = prices.loc[regimes.index[regimes['Regime'] == 1]]
 signals = dict(mom=compute_momentum, rsi=compute_rsi, )
-regimes = dict(low_vol=prices_low_vol, high_vol=prices_high_vol)
+regimes_dict = dict(low_vol=0, high_vol=1)
 
 beta_adjustment = True
+regime_results: dict = dict()
 for signal_name, signal_fct in signals.items():
-    for regime_name, regime_prices in regimes.items():
-        avg_returns_df = get_signal_avg_returns(signal_fct, 63, prices=regime_prices, beta_adjust=True)
-        print(avg_returns_df)
+    future_returns = prices.pct_change(periods=63).shift(-63)
+    beta_adjustment = future_returns.mean(axis=1)
+    future_returns = future_returns.subtract(beta_adjustment, axis=0)
+    signal_values = prices.apply(signal_fct, axis=0)
 
-aggregated_results = pd.concat(horizons_results, axis=1)
-aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
-plt.figure(figsize=(12, 6))
-for column in aggregated_results.columns:
-    plt.plot(aggregated_results.index, aggregated_results[column], label=column)
-plt.title("Average Returns Across Horizons")
-plt.xlabel("Index")
-plt.ylabel("Average Returns")
-plt.legend(title="Horizons")
-plt.grid(alpha=0.3)
-plt.tight_layout()
-plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
-plt.show()
+    for regime_name, regime_value in regimes_dict.items():
+        regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
+        regime_signal_values = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
+        regime_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
+
+        aggregated_results = pd.concat(regime_results, axis=1)
+        aggregated_results.columns = [f'Regime {regime}' for regime in regimes_dict.keys()]
+        plt.figure(figsize=(12, 6))
+        for column in aggregated_results.columns:
+            plt.plot(aggregated_results.index, aggregated_results[column], label=column)
+        plt.title("Average Returns Across Regimes")
+        plt.xlabel("Index")
+        plt.ylabel("Average Returns")
+        plt.legend(title="Regimes")
+        plt.grid(alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(f'plots/q2/returns_{signal_name}_regimeS_beta_adjusted.png')
+        plt.show()
 
 # by cluster with horizon 3 months todo
 clusterss_results: dict = dict()
