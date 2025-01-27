@@ -221,7 +221,8 @@ price_subset = prices['2011-01-31':'2020-12-31'][volatility_subset.columns]
 volatility_data = volatility_subset.values
 regimes = fit_hmm(volatility_data)
 
-pd.to_pickle(regimes, 'hot/regimes.pickle')
+regimes_df = pd.DataFrame(regimes, index=volatility_subset.index, columns=['Regime'])
+pd.to_pickle(regimes_df, 'hot/regimes.pickle')
 plot_regimes(price_subset, regimes)
 
 # note, regimes are detected relatively well by the HMM, however we are taking a holistic look at the entire history
