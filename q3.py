@@ -1,14 +1,22 @@
+import os.path
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from types import FunctionType
+
+from utils import compute_rsi, compute_momentum
+
 
 # note, given we have a $1 portfolio to start with, I will take the simplifying assumption
 # that fractional shares are allowed, which I believe is the spirit of the exercise
 # if not, we could use methods like DiscreteAllocation in pypfopt which handle this well
 
 
-# todo use eligible universe / scope
+def portfolio_turnover(df_weights: pd.DataFrame, freq: str = 'YE') -> None:
+    weight_changes = df_weights.diff().abs()
+    yearly_turnover = weight_changes.resample(freq).sum().mean(axis=1)
+    avg_yearly_turnover = yearly_turnover.mean()
+    print(f"Average Yearly Turnover: {avg_yearly_turnover:.2%}")
 
 
 def portfolio_metrics(equity_curve: pd.Series, risk_free_rate: float = float()) -> pd.Series:
@@ -43,32 +51,29 @@ def portfolio_metrics(equity_curve: pd.Series, risk_free_rate: float = float()) 
     return running_sharpe
 
 
-
-def backtest_portfolio(
-        df_returns: pd.DataFrame,
-        df_weights: pd.DataFrame,
-        rebal_cost: float = 5*0.01*0.01):
-    # 5bps rebal cost assumed
+def backtest_portfolio(df_returns: pd.DataFrame, df_weights: pd.DataFrame, rebal_cost: float = 5 * 0.01 * 0.01):
+    # one extension we could do here would be to use a threshold based rebal frequency rather than time interval
     symbols = df_returns.columns
     df_backtest = pd.concat([df_returns.add_suffix('_RETURN'), df_weights.add_suffix('_WEIGHT')], axis=1)
     # print(df_backtest)
+
     for symbol in symbols:
-        df_backtest[symbol] = df_backtest[f'{symbol}_RETURN'] * df_backtest[f'{symbol}_WEIGHT']
-        df_backtest[symbol] = df_backtest[symbol].mask(
-            df_backtest[f'{symbol}_WEIGHT'] != df_backtest[f'{symbol}_WEIGHT'].shift(),
-            df_backtest[symbol] - rebal_cost)  # discounts rebal costs every time we change weights
+        df_backtest[symbol] = df_backtest[f'{symbol}_RETURN'] * df_backtest[f'{symbol}_WEIGHT']*100
+        if rebal_cost != 0.0:
+            df_backtest[symbol] = df_backtest[symbol].mask(
+                df_backtest[f'{symbol}_WEIGHT'] != df_backtest[f'{symbol}_WEIGHT'].shift(),
+                df_backtest[symbol] - rebal_cost)  # discounts rebal costs every time we change weights
 
     df_backtest = df_backtest[symbols]
-    df_backtest['portfolio'] = (df_backtest + 1).mean(axis=1).cumprod(axis=0)
-    df_backtest['high_water_mark'] = df_backtest['portfolio'].cummax()
-    df_backtest['drawdown'] = (df_backtest['portfolio'] - df_backtest['high_water_mark']) / df_backtest['high_water_mark']
+    df_backtest['equity'] = (df_backtest + 1).mean(axis=1).cumprod(axis=0)
 
-    # df_backtest[['portfolio', 'drawdown']].plot()
-    # plt.show()
+    df_backtest['high_water_mark'] = df_backtest['equity'].cummax()
+    df_backtest['drawdown'] = (df_backtest['equity'] - df_backtest['high_water_mark']) / df_backtest[
+        'high_water_mark']
 
     fig, axes = plt.subplots(2, 1, figsize=(12, 8), gridspec_kw={'height_ratios': [2, 1]})
     # Plot equity curve and high-water mark
-    axes[0].plot(df_backtest['portfolio'], label='Equity Curve', linewidth=2)
+    axes[0].plot(df_backtest['equity'], label='Equity Curve', linewidth=2)
     axes[0].plot(df_backtest['high_water_mark'], label='High Water Mark', linestyle='--', color='red')
     axes[0].set_title('Equity Curve and High Water Mark')
     axes[0].set_xlabel('Time')
@@ -88,26 +93,57 @@ def backtest_portfolio(
     plt.tight_layout()
     plt.show()
 
-    return df_backtest[['portfolio', 'high_water_mark', 'drawdown']]
+    return df_backtest[['equity', 'high_water_mark', 'drawdown']]
 
 
 # todo equal_weights = returns.notna().div(returns.notna().sum(axis=1), axis=0)
 
-def signal2weights(signal_values: pd.DataFrame, long_bias: float = 0.6) -> pd.DataFrame:
-    upper_thresholds = signal_values.quantile(0.85, axis=1)
-    lower_thresholds = signal_values.quantile(0.15, axis=1)
-    strong_signal_mask = signal_values.ge(upper_thresholds, axis=0)
-    weak_signal_mask = signal_values.le(lower_thresholds, axis=0)
+
+def signal2weights(signal_values: pd.DataFrame, scope: pd.DataFrame, long_bias: float = 0.6,
+                   equal_weights=False) -> pd.DataFrame:
+    """
+    NOTE: making the assumption that stocks allocated weight have to be eligible in the universe (csv files provided)
+    checking eligibility on every day before quantile computation and weight assignments
+    it is slightly inefficient, one could simplify by resampling monthly
+
+    if I had a bit more time I would think about how to refactor this method
+    """
+
+    median_signal = signal_values.median(axis=1)
+    temp = pd.concat([signal_values, scope], axis=1)
+    temp['PXID'] = temp['PXID'].ffill()
+    cols = [col for col in temp.columns if col != 'PXID']
+    for col in cols:
+        mask = temp['PXID'].astype(str).str.contains(str(col))
+        temp.loc[~mask, col] = median_signal
+    signal = temp.drop(columns=['PXID'])
+
+    if equal_weights:
+        cols = [col for col in temp.columns if col != 'PXID']
+        masks = {col: temp['PXID'].astype(str).str.contains(str(col)) for col in cols}
+        mask_df = pd.DataFrame(masks, index=temp.index)
+        n_stocks = mask_df.sum(axis=1)
+        equal_weights = mask_df.div(n_stocks, axis=0)
+        return equal_weights
+
+    # computing quantiles using a static 15%, could be changed to a method parameter and/or fine-tuned
+    upper_thresholds = signal.quantile(0.85, axis=1)
+    lower_thresholds = signal.quantile(0.15, axis=1)
+    strong_signal_mask = signal.ge(upper_thresholds, axis=0)
+    weak_signal_mask = signal.le(lower_thresholds, axis=0)
 
     # scale values linearly, so that we allocate proportionally to the signal strength in the upper quantile
-    strong = signal_values.where(strong_signal_mask)
-    strong = strong.sub(signal_values.where(strong_signal_mask).min(axis=1), axis=0)
-    strong = strong.div(signal_values.where(strong_signal_mask).max(axis=1) - signal_values.where(strong_signal_mask).min(axis=1),axis=0)
+    strong = signal.where(strong_signal_mask)
+    strong = strong.sub(signal.where(strong_signal_mask).min(axis=1), axis=0)
+    strong = strong.div(
+        signal.where(strong_signal_mask).max(axis=1) - signal.where(strong_signal_mask).min(axis=1),
+        axis=0)
     strong_signal_weights = strong.div(strong.sum(axis=1), axis=0).fillna(0)
 
-    weak = signal_values.where(weak_signal_mask)
-    weak = weak.sub(signal_values.where(weak_signal_mask).max(axis=1), axis=0)
-    weak = weak.div(signal_values.where(weak_signal_mask).min(axis=1) - signal_values.where(weak_signal_mask).max(axis=1), axis=0)
+    weak = signal.where(weak_signal_mask)
+    weak = weak.sub(signal.where(weak_signal_mask).max(axis=1), axis=0)
+    weak = weak.div(
+        signal.where(weak_signal_mask).min(axis=1) - signal.where(weak_signal_mask).max(axis=1), axis=0)
     weak_signal_weights = weak.div(weak.sum(axis=1), axis=0).fillna(0)
 
     remaining_short_weight = 1 - long_bias
@@ -118,3 +154,94 @@ def signal2weights(signal_values: pd.DataFrame, long_bias: float = 0.6) -> pd.Da
     return weights
 
 
+def signal2weights2(signal_values: pd.DataFrame, scope: pd.DataFrame, long_bias: float = 0.6,
+                   equal_weights=False) -> pd.DataFrame:
+    median_signal = signal_values.median(axis=1)
+    temp = pd.concat([signal_values, scope], axis=1)
+    temp['PXID'] = temp['PXID'].ffill()
+
+    # Mask and replace with median signal
+    cols = temp.columns.difference(['PXID'])
+    for col in cols:
+        temp.loc[~temp['PXID'].astype(str).str.contains(str(col)), col] = median_signal
+    signal = temp.drop(columns=['PXID'])
+
+    if equal_weights:
+        mask_df = temp['PXID'].astype(str).apply(lambda x: [x.__contains__(str(col)) for col in cols], axis=1)
+        mask_df = pd.DataFrame(mask_df.tolist(), index=temp.index, columns=cols)
+        n_stocks = mask_df.sum(axis=1)
+        return mask_df.div(n_stocks, axis=0)
+
+    # Calculate quantiles and mask for strong/weak signals
+    upper_thresholds = signal.quantile(0.85, axis=1)
+    lower_thresholds = signal.quantile(0.15, axis=1)
+    strong_signal_mask = signal.ge(upper_thresholds, axis=0)
+    weak_signal_mask = signal.le(lower_thresholds, axis=0)
+
+    # Normalize the strong and weak signals to allocate proportionally
+    strong_signal_weights = _normalize_signal_weights(signal, strong_signal_mask)
+    weak_signal_weights = _normalize_signal_weights(signal, weak_signal_mask)
+
+    # Apply long and short biases
+    strong_signal_weights *= long_bias
+    weak_signal_weights *= (1 - long_bias)
+
+    return strong_signal_weights.add(weak_signal_weights, fill_value=0)
+
+
+def _normalize_signal_weights(signal: pd.DataFrame, mask: pd.DataFrame) -> pd.DataFrame:
+    normalized = signal.where(mask)
+    normalized = (normalized.sub(normalized.min(axis=1), axis=0)
+                  .div(normalized.max(axis=1) - normalized.min(axis=1), axis=0))
+    return normalized.div(normalized.sum(axis=1), axis=0).fillna(0)
+
+
+returns = pd.read_pickle('hot/returns.pickle')
+scope = pd.read_pickle('hot/scope.pickle')
+
+refresh = True
+weights: dict = dict()
+signal_values = returns.apply(lambda x: (-compute_rsi(x, period=21) + 50) / 100)
+# so here we normalise the RSI signal between -1 and 1, and we take the opposite
+# i.e. aim for mean reversion, sell when RSI is high (overbought), and buy when RSI is low (oversold)
+# we will add a long bias given that the returns for the securities given are skewed positively
+
+# equal weighted
+file = 'weights/equal_weights.pickle'
+if refresh or not os.path.isfile(file):
+    weights['equal_weights'] = signal2weights2(signal_values=signal_values, scope=scope, equal_weights=True)
+    pd.to_pickle(weights['equal_weights'], file)
+else:
+    weights['equal_weights'] = pd.read_pickle(file)
+
+# rsi
+
+file = 'weights/rsi_weights.pickle'
+if refresh or not os.path.isfile(file):
+    weights['rsi_weights'] = signal2weights2(signal_values=signal_values, scope=scope)
+    pd.to_pickle(weights['rsi_weights'], file)
+else:
+    weights['rsi_weights'] = pd.read_pickle(file)
+
+# momentum
+signal_values = returns.apply(lambda x: -compute_momentum(x, period=21))
+file = 'weights/momentum_weights.pickle'
+if refresh or not os.path.isfile(file):
+    weights['momentum_weights'] = signal2weights2(signal_values=signal_values, scope=scope)
+    pd.to_pickle(weights['momentum_weights'], file)
+else:
+    weights['momentum_weights'] = pd.read_pickle(file)
+
+# running_sharpe = portfolio_metrics(backtest['equity'])
+
+
+# backtest = backtest_portfolio(df_returns=df_returns, df_weights=equal_weighted_portfolio)
+
+# backtest_new = backtest_portfolio(df_returns=df_returns, df_weights=df_weights, rebal_cost=0)
+# portfolio_metrics(backtest_new['equity'])
+# portfolio_turnover(df_weights)
+
+for approach_name, weights_frame in weights.items():
+    backtest = backtest_portfolio(df_returns=returns, df_weights=weights_frame, rebal_cost=0)
+    running_sharpe_rsi = portfolio_metrics(backtest['equity'])
+    portfolio_turnover(weights_frame)

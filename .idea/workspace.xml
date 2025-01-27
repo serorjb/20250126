@@ -5,12 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q3">
-      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/q1/clusters.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/q1/clusters.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/q1/clusters_returns.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/q1/clusters_returns.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plots/q1/regimes.png" beforeDir="false" afterPath="$PROJECT_DIR$/plots/q1/regimes.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/q2.py" beforeDir="false" afterPath="$PROJECT_DIR$/q2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,11 +46,11 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Python.draft.executor": "Run",
+    "Python.draft.executor": "Debug",
     "Python.draft_2.executor": "Run",
     "Python.q1.executor": "Run",
     "Python.q2.executor": "Run",
-    "Python.q3.executor": "Debug",
+    "Python.q3.executor": "Run",
     "Python.q4.executor": "Run",
     "Python.scratch_1.executor": "Run",
     "Python.scratch_2.executor": "Debug",
@@ -83,8 +78,11 @@
       <recent name="C:\Dev\20250126" />
       <recent name="C:\Dev\20250126\data" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Dev\20250126" />
+    </key>
   </component>
-  <component name="RunManager" selected="Python.draft">
+  <component name="RunManager" selected="Python.q3">
     <configuration name="draft" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -198,10 +196,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.q3" />
         <item itemvalue="Python.draft" />
         <item itemvalue="Python.draft_2" />
         <item itemvalue="Python.scratch_2" />
-        <item itemvalue="Python.q3" />
         <item itemvalue="Python.q1" />
       </list>
     </recent_temporary>
@@ -425,7 +423,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737957672413</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="q3">
+      <option name="closed" value="true" />
+      <created>1737963162379</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1737963162379</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -435,7 +441,8 @@
     <MESSAGE value="q1" />
     <MESSAGE value="q2" />
     <MESSAGE value="various bug fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="various bug fixes" />
+    <MESSAGE value="q3" />
+    <option name="LAST_COMMIT_MESSAGE" value="q3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
