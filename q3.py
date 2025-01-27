@@ -56,17 +56,18 @@ def portfolio_metrics(equity_curve: pd.Series, risk_free_rate: float = float()) 
 def backtest_portfolio(df_returns: pd.DataFrame, df_weights: pd.DataFrame, rebal_cost: float = 5 * 0.01 * 0.01):
     # one extension we could do here would be to use a threshold based rebal frequency rather than time interval
     symbols = df_returns.columns
-    df_backtest = pd.concat([df_returns, df_weights], axis=1, keys=['RETURN', 'WEIGHT'])
+    df_backtest = pd.concat([df_returns.add_suffix('_RETURN'), df_weights.add_suffix('_WEIGHT')], axis=1)
 
     for symbol in symbols:
-        return_column = f'{symbol}_RETURN'
-        weight_column = f'{symbol}_WEIGHT'
-        df_backtest[symbol] = df_backtest[return_column] * df_backtest[weight_column] * 100
-
+        df_backtest[symbol] = df_backtest[f'{symbol}_RETURN'] * df_backtest[f'{symbol}_WEIGHT']
+        df_backtest[symbol] = df_backtest[symbol].mask(
+            df_backtest[f'{symbol}_WEIGHT'] != df_backtest[f'{symbol}_WEIGHT'].shift(),
+            df_backtest[symbol] - rebal_cost)  # discounts rebal costs every time we change weights
+        df_backtest[symbol] = df_backtest[f'{symbol}_RETURN'] * df_backtest[f'{symbol}_WEIGHT']*100
         if rebal_cost != 0.0:
-            weight_shifted = df_backtest[weight_column].shift()
-            rebalance_mask = df_backtest[weight_column] != weight_shifted
-            df_backtest[symbol] -= rebalance_mask * rebal_cost
+            df_backtest[symbol] = df_backtest[symbol].mask(
+                df_backtest[f'{symbol}_WEIGHT'] != df_backtest[f'{symbol}_WEIGHT'].shift(),
+                df_backtest[symbol] - rebal_cost)  # discounts rebal costs every time we change weights
 
     df_backtest = df_backtest[symbols]
     df_backtest['equity'] = (df_backtest + 1).mean(axis=1).cumprod(axis=0)
@@ -160,6 +161,13 @@ def signal2weights(signal_values: pd.DataFrame, scope: pd.DataFrame, long_bias: 
 
 def signal2weights2(signal_values: pd.DataFrame, scope: pd.DataFrame, long_bias: float = 0.6,
                    equal_weights=False) -> pd.DataFrame:
+    """
+    NOTE: making the assumption that stocks allocated weight have to be eligible in the universe (csv files provided)
+    checking eligibility on every day before quantile computation and weight assignments
+    it is slightly inefficient, one could simplify by resampling monthly
+
+    if I had a bit more time I would think about how to refactor this method
+    """
 
     median_signal = signal_values.median(axis=1)
     temp = pd.concat([signal_values, scope], axis=1)
@@ -205,7 +213,8 @@ def _normalize_signal_weights(signal: pd.DataFrame, mask: pd.DataFrame) -> pd.Da
 returns = pd.read_pickle('hot/returns.pickle')
 scope = pd.read_pickle('hot/scope.pickle')
 
-refresh = True
+refresh = True  # note this takes like 5 minutes to run ,hence we pickle the results
+
 weights: dict = dict()
 signal_values = returns.apply(lambda x: -(compute_rsi(x, period=21)-50)/100)
 # so here we normalise the RSI signal between -1 and 1, and we take the opposite

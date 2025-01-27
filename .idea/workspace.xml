@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q4" />
+    <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q4">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q4.py" beforeDir="false" afterPath="$PROJECT_DIR$/q4.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -48,7 +52,7 @@
     "Python.q1.executor": "Run",
     "Python.q2.executor": "Run",
     "Python.q3.executor": "Run",
-    "Python.q4.executor": "Run",
+    "Python.q4.executor": "Debug",
     "Python.scratch_1.executor": "Run",
     "Python.scratch_2.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -79,7 +83,7 @@
       <recent name="C:\Dev\20250126" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.q3">
+  <component name="RunManager" selected="Python.q4">
     <configuration name="draft" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -192,8 +196,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.q3" />
         <item itemvalue="Python.q4" />
+        <item itemvalue="Python.q3" />
         <item itemvalue="Python.draft" />
         <item itemvalue="Python.draft_2" />
         <item itemvalue="Python.scratch_2" />
@@ -443,7 +447,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737970566767</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="q4">
+      <option name="closed" value="true" />
+      <created>1737970872198</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1737970872198</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -464,6 +476,16 @@
           <url>file://$PROJECT_DIR$/q1.py</url>
           <line>216</line>
           <option name="timeStamp" value="99" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q4.py</url>
+          <line>25</line>
+          <option name="timeStamp" value="123" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q4.py</url>
+          <line>16</line>
+          <option name="timeStamp" value="124" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
