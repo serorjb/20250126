@@ -198,6 +198,8 @@ for approach_name, weights_frame in weights.items():
     backtest = backtest_portfolio(df_returns=returns[start:], df_weights=weights_frame[start:], rebal_cost=0)
     equity_curves[approach_name] = backtest['equity']
     running_sharpe_ratios[approach_name] = portfolio_metrics(backtest['equity'])
+    # adding 1 year to collect proper running sharpe ratio metrics
+    running_sharpe_ratios[approach_name] = running_sharpe_ratios[approach_name]['2012-01-31':]
     portfolio_turnover(weights_frame[start:])
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
