@@ -42,7 +42,8 @@ fx.drop_duplicates(inplace=True)
 fx['TICKER'].fillna('CAD', inplace=True)
 fx['RATE'] = fx['RATE'].interpolate(method='linear')
 
-# I wanted to skip the FX conversion part, there is only 1 foreign (CAD) denominated stock (PXID 66309 / ID 17434);
+# I initially wanted to skip the FX conversion part,
+# there is only 1 foreign (CAD) denominated stock (PXID 66309 / ID 17434);
 # we have prices back from 2005, so I can't exclude it on the grounds of insufficient lookback,
 # and it is in the univ scope in 2016-06-30 and 2016-07-29 rebal periods, so technically eligible.
 
