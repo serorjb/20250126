@@ -7,15 +7,21 @@ from talib import abstract
 
 # !pip install TA-lib
 
-prices = pd.read_pickle('hot/prices.pickle')
-clusters = pd.read_pickle('hot/clusters.pickle')
 
+def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path: str=None):
+    plt.figure(figsize=(10, 6))
+    for label, series in data_dict.items():
+        plt.plot(series.index, series, label=label, alpha=0.7)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend(loc='best')
+    plt.grid(True)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)
+    plt.show()
 
-# Use returns calculated in Q1 to construct at least 2 price momentum signals. You may assume that closing
-# price for MARKET_DATE=2016-06-30 is available for signal construction on DATE=2016-06-30.
-
-# Explain if you would favor larger/smaller values of the signal constructed and explain why assets with
-# larger (smaller) signal values should outperform those with smaller (larger) values.
 
 # RSI / MOMENTUM
 def compute_rsi(series: pd.Series, period: int = 14):
@@ -66,11 +72,12 @@ def get_signal_avg_returns(
     return avg_returns_df
 
 
-# time horizons
+# BASELINE - MULTIPLE HORIZONS
 horizons_results: dict = dict()
 horizon_days = (5, 10, 15, 21, 63, 92, 252)
 signals = dict(mom=compute_momentum, rsi=compute_rsi, )
 beta_adjustments = (True, False)
+prices = pd.read_pickle('hot/prices.pickle')
 
 # running a simulation with various parameters
 # for beta_adjustment in beta_adjustments:
@@ -93,18 +100,8 @@ beta_adjustments = (True, False)
 #
 #         aggregated_results = pd.concat(horizons_results, axis=1)
 #         aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
-#         plt.figure(figsize=(12, 6))
-#         for column in aggregated_results.columns:
-#             plt.plot(aggregated_results.index, aggregated_results[column], label=column)
-#         plt.title("Average Returns Across Horizons")
-#         plt.xlabel("Quantile")
-#         plt.ylabel("Average Returns")
-#         plt.legend(title="Horizons")
-#         plt.grid(alpha=0.3)
-#         plt.tight_layout()
-#         plt.savefig(f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
-#         plt.show()
-
+#         plot_series(horizons_results, 'Average Returns Across Horizons', 'Quantile', 'Average Returns',
+#             save_path=f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
 
 # so, interestingly both indicators show consistent results, both with and without beta discounting, lower quantiles
 # outperform higher quantiles, i.e. the securities presented here seem to exhibit a mean reverting behavior
@@ -134,9 +131,6 @@ def adf_with_drift(prices, confidence=0.05, regression='ctt', maxlag=21):
 # usually in high vol markets, investors tend to be more coordinated and momentum is stronger
 regimes_results: dict = dict()
 regimes = pd.read_pickle('hot/regimes.pickle')
-
-prices_low_vol = prices.loc[regimes.index[regimes['Regime'] == 0]]
-prices_high_vol = prices.loc[regimes.index[regimes['Regime'] == 1]]
 regimes_dict = dict(low_vol=0, high_vol=1)
 
 beta_adjustment = True
@@ -164,22 +158,18 @@ for signal_name, signal_fct in signals.items():
     plt.tight_layout()
     plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
     plt.show()
+
+    # todo switch plotting code to boilerplate plot_series()
 
 # worth noting that naturally the high vol context provides better opportunities to "buy the dip",
 # and bounce back comparatively to the low vol regime, the plots display this, which makes sense
 
 
-# by cluster with horizon 3 months todo
-# todo tidy up and centralise the boilerplate plotting code
+# RELATIVE
+# another interesting development is to use these indicators for relative comparison within clusters
 clusters_results: dict = dict()
-
-regimes_results: dict = dict()
-regimes = pd.read_pickle('hot/regimes.pickle')
-prices = pd.read_pickle('hot/prices.pickle')
-
-prices_low_vol = prices.loc[regimes.index[regimes['Regime'] == 0]]
-prices_high_vol = prices.loc[regimes.index[regimes['Regime'] == 1]]
-regimes_dict = dict(low_vol=0, high_vol=1)
+clusters = pd.read_pickle('hot/clusters.pickle')
+clusters = {f'cluster_{x}': value for x, value in enumerate(clusters.values())}
 
 beta_adjustment = True
 for signal_name, signal_fct in signals.items():
@@ -188,55 +178,13 @@ for signal_name, signal_fct in signals.items():
     future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
     signal_values = prices.apply(signal_fct, axis=0)
 
-    for regime_name, regime_value in regimes_dict.items():
-        regime_future_returns = future_returns.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regime_signal_values = signal_values.loc[regimes.index[regimes['Regime'] == regime_value]]
-        regimes_results[regime_name] = get_signal_avg_returns(regime_future_returns, regime_signal_values)
+    for cluster_name, cluster in clusters.items():
+        clusters_results[cluster_name] = get_signal_avg_returns(future_returns[cluster], signal_values[cluster])
 
-    # Plotting both series
-    plt.figure(figsize=(10, 6))
-    hv, lv = regimes_results['high_vol'], regimes_results['low_vol']
-    plt.plot(hv.index, hv, label='High Volatility', color='red', alpha=0.7)
-    plt.plot(lv.index, lv, label='Low Volatility', color='black', alpha=0.7)
-    plt.title('High Volatility vs Low Volatility')
-    plt.xlabel('Quantile')
-    plt.ylabel('Value')
-    plt.legend(loc='best')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
-    plt.show()
+    plot_series(clusters_results, 'Alpha by SOM Cluster', 'Quantile', 'Value',
+                save_path=f'plots/q2/returns_{signal_name}_clusters_beta_adjusted_True.png')
 
-
-
-# Plot the results (raw and beta-adjusted)
-fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-
-# Plot raw returns
-avg_returns.plot(ax=axes[0])
-axes[0].set_title('Average Future Returns (Raw)')
-axes[0].set_xlabel('Quantile')
-axes[0].set_ylabel('Average Return')
-
-# Plot beta-adjusted returns
-# Compute beta-adjusted returns by subtracting index average returns (use mean of all columns)
-index_returns = prices.mean(axis=1).pct_change().shift(-1)
-beta_adjusted_returns = avg_returns.sub(index_returns, axis=0)
-
-beta_adjusted_returns.plot(ax=axes[1])
-axes[1].set_title('Average Future Returns (Beta-Adjusted)')
-axes[1].set_xlabel('Quartile')
-axes[1].set_ylabel('Beta-Adjusted Return')
-
-plt.tight_layout()
-plt.show()
-
-
-# RELATIVE
-# another interesting development is to use these indicators for relative comparison within clusters
-
-
-
+# worth noting that some clusters react much better than others especially for the RSI signal
 
 
 # CUSTOM
@@ -274,17 +222,8 @@ for col in prices.columns:
     ))
     custom[col] = temp
 
-# col = prices.columns[0]
-# custom = talib_base_indicators(prices[[col]], inputs=dict(
-#         open=prices[col].shift(5),
-#         high=prices[col].rolling(5).max(),
-#         low=prices[col].rolling(5).min(),
-#         close=prices[col],
-#         # feeding 0 volume for compatibility
-#         # features will go into a random forest which will ignore irrelevant inputs
-#         volume=pd.Series(0, index=prices[col].index),
-# ))
-
+# todo to be continued, train the forest once a year with a growing window
+#  revisit once done ith q3/q4
 print(custom)
 
 # todo once done run flake8 & mypy
