@@ -3,6 +3,8 @@ import warnings
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
 
+from utils import compute_momentum, compute_rsi
+
 
 def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path: str = None):
     plt.figure(figsize=(10, 6))
@@ -18,21 +20,7 @@ def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path
         plt.savefig(save_path)
     # plt.show()
 
-
-# RSI / MOMENTUM
-def compute_rsi(series: pd.Series, period: int = 14):
-    # c.f. https://en.wikipedia.org/wiki/relative_strength_index
-    delta = series.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi.bfill()
-
-
-def compute_momentum(series: pd.Series, period: int = 21):
-    return (series / series.shift(period) - 1).bfill()
-
+# c.f. utils.py methods compute_rsi and compute_momentum
 
 # the RSI and Momentum are classic momentum-type indicators;
 # RSI is traditionally used with a 14 period and Momentum 10.

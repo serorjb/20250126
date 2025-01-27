@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from q2 import compute_rsi, compute_momentum
+from types import FunctionType
 
 # note, given we have a $1 portfolio to start with, I will take the simplifying assumption
 # that fractional shares are allowed, which I believe is the spirit of the exercise
@@ -42,10 +42,6 @@ def portfolio_metrics(equity_curve: pd.Series, risk_free_rate: float = float()) 
 
     return running_sharpe
 
-
-returns = pd.read_pickle('hot/returns.pickle')
-equal_weighted_portfolio = pd.DataFrame(1/len(returns.columns), index=returns.index, columns=returns.columns)
-# clip_returns(df_returns)  # cap outliers
 
 
 def backtest_portfolio(
@@ -95,56 +91,30 @@ def backtest_portfolio(
     return df_backtest[['portfolio', 'high_water_mark', 'drawdown']]
 
 
-def signal2weights(returns: pd.DataFrame, period: int = 14, upper_threshold: int = 65, lower_threshold: int = 35) -> pd.DataFrame:
-    """
-    Generate a momentum-based signal with weights for stocks based on their RSI.
+# todo equal_weights = returns.notna().div(returns.notna().sum(axis=1), axis=0)
 
-    Args:
-        df_returns (pd.DataFrame): DataFrame of returns with columns as stocks and rows as time.
-        rsi_period (int): The period over which to compute the RSI (default 14).
-        upper_threshold (int): The RSI value above which to underweight a stock (default 80).
-        lower_threshold (int): The RSI value below which to overweight a stock (default 20).
+def signal2weights(signal_values: pd.DataFrame, long_bias: float = 0.6) -> pd.DataFrame:
+    upper_thresholds = signal_values.quantile(0.85, axis=1)
+    lower_thresholds = signal_values.quantile(0.15, axis=1)
+    strong_signal_mask = signal_values.ge(upper_thresholds, axis=0)
+    weak_signal_mask = signal_values.le(lower_thresholds, axis=0)
 
-    Returns:
-        pd.DataFrame: DataFrame of weights with the same index as df_returns.
-    """
-    # Initialize weights with equal allocation
-    n_stocks = df_returns.shape[1]
-    equal_weight = 1 / n_stocks
-    weights = pd.DataFrame(equal_weight, index=df_returns.index, columns=df_returns.columns)
+    # scale values linearly, so that we allocate proportionally to the signal strength in the upper quantile
+    strong = signal_values.where(strong_signal_mask)
+    strong = strong.sub(signal_values.where(strong_signal_mask).min(axis=1), axis=0)
+    strong = strong.div(signal_values.where(strong_signal_mask).max(axis=1) - signal_values.where(strong_signal_mask).min(axis=1),axis=0)
+    strong_signal_weights = strong.div(strong.sum(axis=1), axis=0).fillna(0)
 
+    weak = signal_values.where(weak_signal_mask)
+    weak = weak.sub(signal_values.where(weak_signal_mask).max(axis=1), axis=0)
+    weak = weak.div(signal_values.where(weak_signal_mask).min(axis=1) - signal_values.where(weak_signal_mask).max(axis=1), axis=0)
+    weak_signal_weights = weak.div(weak.sum(axis=1), axis=0).fillna(0)
 
-    rsi_values = df_returns.apply(lambda x: compute_rsi(x, period))
+    remaining_short_weight = 1 - long_bias
+    strong_signal_weights *= long_bias
+    weak_signal_weights *= remaining_short_weight
 
-    # Initialize previous RSI values to track threshold crossings
-    prev_rsi_values = rsi_values.shift(1)
-
-    # Store the current weights to track updates
-    current_weights = pd.DataFrame(equal_weight, index=df_returns.index, columns=df_returns.columns)
-
-    # Loop through each row (date) and apply the logic
-    for date in rsi_values.index:
-        # Get the RSI values for the current date and previous date
-        rsi_today = rsi_values.loc[date]
-        rsi_prev = prev_rsi_values.loc[date]
-
-        # Identify stocks that crossed above 80 or below 20
-        overweight_stocks = rsi_today[(rsi_prev < upper_threshold) & (rsi_today > upper_threshold)].index
-        underweight_stocks = rsi_today[(rsi_prev > lower_threshold) & (rsi_today < lower_threshold)].index
-
-        # Adjust weights when a crossing happens
-        if len(overweight_stocks) > 0 or len(underweight_stocks) > 0:
-            # Assign proportional weights
-            overweight_weight = 0.3 / len(overweight_stocks) if len(overweight_stocks) > 0 else 0
-            underweight_weight = 0.01 / len(underweight_stocks) if len(underweight_stocks) > 0 else 0
-            neutral_weight = (1 - (overweight_weight * len(overweight_stocks) + underweight_weight * len(underweight_stocks))) / (n_stocks - len(overweight_stocks) - len(underweight_stocks))
-
-            # Update current weights for the current date
-            current_weights.loc[date:, :] = neutral_weight
-            current_weights.loc[date:, overweight_stocks] = overweight_weight
-            current_weights.loc[date:, underweight_stocks] = underweight_weight
-
-        # Set the new weights for the current date in the weights DataFrame
-        weights.loc[date:, :] = current_weights.loc[date:, :]
-
+    weights = strong_signal_weights.add(weak_signal_weights, fill_value=0)
     return weights
+
+
