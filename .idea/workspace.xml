@@ -5,7 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2375c19e-a32d-45a2-aac4-89acba82b4ae" name="Changes" comment="q2">
+      <change afterPath="$PROJECT_DIR$/plots/q1/clusters.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q1/clusters_returns.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q1/prices.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q1/regimes.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q1/scope_initial.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q1/scope_modified.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_mom_clusters_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_mom_horizons_beta_adjusted_False.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_mom_horizons_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_mom_regimes_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_rsi_clusters_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_rsi_horizons_beta_adjusted_False.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_rsi_horizons_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plots/q2/returns_rsi_regimes_beta_adjusted_True.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/q4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/20250126.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/20250126.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q1.py" beforeDir="false" afterPath="$PROJECT_DIR$/q1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/q2.py" beforeDir="false" afterPath="$PROJECT_DIR$/q2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/q3.py" beforeDir="false" afterPath="$PROJECT_DIR$/q3.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,8 +64,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Python.q1.executor": "Debug",
+    "Python.q1.executor": "Run",
     "Python.q2.executor": "Run",
+    "Python.q3.executor": "Debug",
+    "Python.q4.executor": "Run",
     "Python.scratch_1.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -73,7 +94,7 @@
       <recent name="C:\Dev\20250126\data" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.q2">
+  <component name="RunManager" selected="Python.q1">
     <configuration name="q1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -119,6 +140,50 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="q3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="20250126" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/q3.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="q4" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="20250126" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/q4.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="scratch_1" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="20250126" />
       <option name="ENV_FILES" value="" />
@@ -143,8 +208,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.q2" />
         <item itemvalue="Python.q1" />
+        <item itemvalue="Python.q2" />
+        <item itemvalue="Python.q3" />
+        <item itemvalue="Python.q4" />
         <item itemvalue="Python.scratch_1" />
       </list>
     </recent_temporary>
@@ -328,7 +395,23 @@
       <option name="project" value="LOCAL" />
       <updated>1737952609070</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737953043470</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1737953043470</updated>
+    </task>
+    <task id="LOCAL-00023" summary="q2">
+      <option name="closed" value="true" />
+      <created>1737953219958</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1737953219958</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -338,6 +421,22 @@
     <MESSAGE value="q1" />
     <MESSAGE value="q2" />
     <option name="LAST_COMMIT_MESSAGE" value="q2" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q3.py</url>
+          <line>46</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/q1.py</url>
+          <line>215</line>
+          <option name="timeStamp" value="99" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/20250126$q1.coverage" NAME="q1 Coverage Results" MODIFIED="1737889814452" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

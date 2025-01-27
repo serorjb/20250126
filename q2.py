@@ -1,12 +1,10 @@
+import warnings
+
 import pandas as pd
-import talib
 from statsmodels.tsa.stattools import adfuller
-from talib import abstract
-
-# !pip install TA-lib
 
 
-def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path: str=None):
+def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path: str = None):
     plt.figure(figsize=(10, 6))
     for label, series in data_dict.items():
         plt.plot(series.index, series, label=label, alpha=0.7)
@@ -18,7 +16,7 @@ def plot_series(data_dict: dict, title: str, xlabel: str, ylabel: str, save_path
     plt.tight_layout()
     if save_path:
         plt.savefig(save_path)
-    plt.show()
+    # plt.show()
 
 
 # RSI / MOMENTUM
@@ -50,6 +48,8 @@ def compute_momentum(series: pd.Series, period: int = 21):
 import pandas as pd
 import matplotlib.pyplot as plt
 
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 
 def get_signal_avg_returns(
         future_returns: pd.DataFrame,
@@ -61,6 +61,7 @@ def get_signal_avg_returns(
             continue
         quantiles = pd.qcut(signal_values[ticker], quantile_bins, labels=False, duplicates='drop')
         future_returns_col = future_returns[ticker]
+        # depending on your pandas version this line might show a FutureWarning
         returns_by_quantile = future_returns_col.groupby(quantiles).mean()
         avg_returns_list.append(returns_by_quantile)
     avg_returns_df = pd.concat(avg_returns_list, axis=1).mean(axis=1)
@@ -96,7 +97,8 @@ for beta_adjustment in beta_adjustments:
         aggregated_results = pd.concat(horizons_results, axis=1)
         aggregated_results.columns = [f'Horizon {horizon} days' for horizon in horizons_results.keys()]
         plot_series(horizons_results, 'Average Returns Across Horizons', 'Quantile', 'Average Returns',
-            save_path=f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
+                    save_path=f'plots/q2/returns_{signal_name}_horizons_beta_adjusted_{beta_adjustment}.png')
+
 
 # so, interestingly both indicators show consistent results, both with and without beta discounting, lower quantiles
 # outperform higher quantiles, i.e. the securities presented here seem to exhibit a mean reverting behavior
@@ -152,7 +154,7 @@ for signal_name, signal_fct in signals.items():
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(f'plots/q2/returns_{signal_name}_regimes_beta_adjusted_True.png')
-    plt.show()
+    # plt.show()
 
     # todo switch plotting code to boilerplate plot_series()
 
@@ -187,39 +189,43 @@ for signal_name, signal_fct in signals.items():
 # many technical indicators and feed them as features to a random forest, and see what's relevant;
 # we don't have OHLC dataset but given we have daily close and monthly rebal, we can do a rolling resample
 
-def talib_base_indicators(df: pd.DataFrame, inputs: dict):
-    # skipping 'Volume Indicators' as we don't have the volume here
-    scope = {'Momentum Indicators', 'Cycle Indicators', 'Volatility Indicators', 'Price Transform'}
-    for f, v in abstract.__dict__.items():
-        if type(v) == talib._ta_lib.Function:
-            if v.info.get('group') in scope:
-                name = v.info.get('name')
-                output = v(inputs)
-                if type(output) == list:
-                    for x in range(len(output)):
-                        df[f'{name}_x'] = output[x]
-                else:
-                    df[name] = output
-
-
-custom: dict = dict()
-for col in prices.columns:
-    temp = prices[[col]].copy(deep=True)
-    talib_base_indicators(temp, inputs=dict(
-        # assuming 5 business days per week
-        open=temp[col].shift(5),
-        high=temp[col].rolling(5).max(),
-        low=temp[col].rolling(5).min(),
-        close=temp[col],
-        # feeding 0 volume for compatibility
-        # features will go into a random forest which will ignore irrelevant inputs
-        volume=pd.Series(0, index=temp[col].index),
-    ))
-    temp['OBJECTIVE'] = temp.iloc[:, 0].pct_change(periods=63).shift(-63)
-    temp[temp.columns[0]] = str(col)
-    custom[col] = temp
+# !pip install TA-lib
+# import talib
+# from talib import abstract
+#
+#
+# def talib_base_indicators(df: pd.DataFrame, inputs: dict):
+#     # skipping 'Volume Indicators' as we don't have the volume here
+#     scope = {'Momentum Indicators', 'Cycle Indicators', 'Volatility Indicators', 'Price Transform'}
+#     for f, v in abstract.__dict__.items():
+#         if type(v) == talib._ta_lib.Function:
+#             if v.info.get('group') in scope:
+#                 name = v.info.get('name')
+#                 output = v(inputs)
+#                 if type(output) == list:
+#                     for x in range(len(output)):
+#                         df[f'{name}_x'] = output[x]
+#                 else:
+#                     df[name] = output
+#
+#
+# custom: dict = dict()
+# for col in prices.columns:
+#     temp = prices[[col]].copy(deep=True)
+#     talib_base_indicators(temp, inputs=dict(
+#         # assuming 5 business days per week
+#         open=temp[col].shift(5),
+#         high=temp[col].rolling(5).max(),
+#         low=temp[col].rolling(5).min(),
+#         close=temp[col],
+#         # feeding 0 volume for compatibility
+#         # features will go into a random forest which will ignore irrelevant inputs
+#         volume=pd.Series(0, index=temp[col].index),
+#     ))
+#     temp['OBJECTIVE'] = temp.iloc[:, 0].pct_change(periods=63).shift(-63)
+#     temp[temp.columns[0]] = str(col)
+#     custom[col] = temp
 
 # todo revisit once done ith q3/q4, gather all securities, train the forest once a year with a growing window
-print(custom)
 
 # todo run flake8 & mypy
