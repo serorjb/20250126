@@ -70,10 +70,10 @@ def get_signal_avg_returns(
 horizons_results: dict = dict()
 horizon_days = (5, 10, 15, 21, 63, 92, 252)
 signals = dict(mom=compute_momentum, rsi=compute_rsi, )
-beta_adjust = (True, False)
+beta_adjustments = (True, False)
 
 # running a simulation with various parameters
-for beta_adjustment in beta_adjust:
+for beta_adjustment in beta_adjustments:
     for signal_name, signal_fct in signals.items():
         for horizon in horizon_days:
             print(f'{str(beta_adjustment)=} {signal_name=} {horizon=}')
@@ -83,8 +83,8 @@ for beta_adjustment in beta_adjust:
                 # results are good, but returns are consistently positive, which is in-line with general stock markets
                 # distribution skew an interesting approach would be to do some kind of beta-discounting,
                 # let's try using an equal weighted index
-                beta_adjustment = prices.mean(axis=1).pct_change(periods=horizon).shift(-horizon)
-                future_returns = future_returns.subtract(beta_adjustment, axis=0)
+                beta_adjustment_values = prices.mean(axis=1).pct_change(periods=horizon).shift(-horizon)
+                future_returns = future_returns.subtract(beta_adjustment_values, axis=0)
 
             signal_values = prices.apply(signal_fct, axis=0)
             avg_returns_df = get_signal_avg_returns(future_returns, signal_values)
